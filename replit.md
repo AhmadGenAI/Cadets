@@ -1,4 +1,4 @@
-# Shaheen Forces Academy - Cadet College Prep Portal
+# Cadet Colleges Test Preparation Portal
 
 ## Overview
 A comprehensive web application for Pakistani students preparing for cadet college entrance exams. Features AI tutoring, MCQ practice, interview/medical preparation tips, and a full admin panel.

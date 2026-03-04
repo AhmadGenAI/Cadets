@@ -57,13 +57,13 @@ export async function seedDatabase() {
   await storage.createPage({
     title: "About Us",
     slug: "about",
-    content: "<h2>About Shaheen Forces Academy</h2><p>Shaheen Forces Academy is Pakistan's premier online preparation platform for cadet college entrance exams. We provide comprehensive preparation tools including AI-powered tutoring, practice tests, interview preparation, and medical exam guidance.</p><p>Our mission is to make quality cadet college preparation accessible to every student across Pakistan, regardless of their location or background.</p><h3>Our Vision</h3><p>To be the leading educational technology platform empowering the next generation of Pakistan's military leaders.</p>",
+    content: "<h2>About Cadet Colleges Test Preparation Portal</h2><p>Cadet Colleges Test Preparation Portal is Pakistan's premier online preparation platform for cadet college entrance exams. We provide comprehensive preparation tools including AI-powered tutoring, practice tests, interview preparation, and medical exam guidance.</p><p>Our mission is to make quality cadet college preparation accessible to every student across Pakistan, regardless of their location or background.</p><h3>Our Vision</h3><p>To be the leading educational technology platform empowering the next generation of Pakistan's military leaders.</p>",
     isPublished: true,
   });
   await storage.createPage({
     title: "Terms of Service",
     slug: "terms",
-    content: "<h2>Terms of Service</h2><p>By using Shaheen Forces Academy platform, you agree to the following terms and conditions.</p><h3>Account Registration</h3><p>You must provide a valid mobile number to register. Each mobile number can only be used for one account.</p><h3>Free Trial</h3><p>New users receive a free trial period. After the trial expires, a paid subscription is required to continue using premium features.</p><h3>Refund Policy</h3><p>Contact our WhatsApp support for any refund requests within 7 days of purchase.</p>",
+    content: "<h2>Terms of Service</h2><p>By using Cadet Colleges Test Preparation Portal, you agree to the following terms and conditions.</p><h3>Account Registration</h3><p>You must provide a valid mobile number to register. Each mobile number can only be used for one account.</p><h3>Free Trial</h3><p>New users receive a free trial period. After the trial expires, a paid subscription is required to continue using premium features.</p><h3>Refund Policy</h3><p>Contact our WhatsApp support for any refund requests within 7 days of purchase.</p>",
     isPublished: true,
   });
   await storage.createPage({
@@ -76,7 +76,7 @@ export async function seedDatabase() {
   await storage.createBlogPost({
     title: "How to Prepare for Cadet College Entry Test 2026",
     slug: "how-to-prepare-cadet-college-2026",
-    content: "<p>Preparing for cadet college entry tests requires a structured approach. Here are our top tips:</p><h3>1. Start Early</h3><p>Begin your preparation at least 3-6 months before the exam date. This gives you enough time to cover all subjects thoroughly.</p><h3>2. Focus on Core Subjects</h3><p>Mathematics, English, Urdu, and General Knowledge are the four pillars of the entry test. Allocate time to each subject daily.</p><h3>3. Practice MCQs Daily</h3><p>Solve at least 25 MCQs every day. This builds your speed and accuracy for the actual exam.</p><h3>4. Join Online Preparation</h3><p>Use platforms like Shaheen Forces Academy that provide AI-tutoring and topic-wise preparation.</p>",
+    content: "<p>Preparing for cadet college entry tests requires a structured approach. Here are our top tips:</p><h3>1. Start Early</h3><p>Begin your preparation at least 3-6 months before the exam date. This gives you enough time to cover all subjects thoroughly.</p><h3>2. Focus on Core Subjects</h3><p>Mathematics, English, Urdu, and General Knowledge are the four pillars of the entry test. Allocate time to each subject daily.</p><h3>3. Practice MCQs Daily</h3><p>Solve at least 25 MCQs every day. This builds your speed and accuracy for the actual exam.</p><h3>4. Join Online Preparation</h3><p>Use platforms like Cadet Colleges Test Preparation Portal that provide AI-tutoring and topic-wise preparation.</p>",
     isPublished: true,
     publishedAt: new Date(),
   });
@@ -108,7 +108,7 @@ export async function seedDatabase() {
   }
 
   await storage.setSetting("trial_days", 3);
-  await storage.setSetting("site_name", "Shaheen Forces Academy");
+  await storage.setSetting("site_name", "Cadet Colleges Test Preparation Portal");
 
   console.log("Seed data inserted successfully.");
 }

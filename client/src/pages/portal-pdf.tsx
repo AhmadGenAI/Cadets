@@ -93,7 +93,7 @@ export default function PortalPdf() {
                 <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-primary/20">
                   <img
                     src={watermarkImg}
-                    alt="Shaheen Forces Academy"
+                    alt="Cadet Colleges Test Preparation Portal"
                     className="w-full h-full object-cover"
                   />
                 </div>

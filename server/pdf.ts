@@ -80,7 +80,7 @@ export function generateMcqPdf(
 
       doc.save();
       doc.fontSize(16).fillColor("#1a7a3a").font("Helvetica-Bold");
-      doc.text("Shaheen Forces Academy", 110, 38, { width: contentWidth - 60 });
+      doc.text("Cadet Colleges Test Preparation Portal", 110, 38, { width: contentWidth - 60 });
       doc.fontSize(9).fillColor("#666666").font("Helvetica");
       doc.text("Enter to Learn, Leave to Lead", 110, 58, { width: contentWidth - 60 });
       doc.restore();

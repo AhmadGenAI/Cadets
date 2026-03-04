@@ -12,7 +12,7 @@ export function PublicFooter() {
               <div className="w-9 h-9 rounded-md bg-primary flex items-center justify-center">
                 <Shield className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg">Shaheen Forces Academy</span>
+              <span className="font-bold text-lg">Cadet Colleges Test Preparation Portal</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Pakistan's leading cadet college preparation portal. Prepare for your future with smart learning tools.
@@ -57,7 +57,7 @@ export function PublicFooter() {
 
         <div className="border-t mt-8 pt-6 text-center">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Shaheen Forces Academy. All rights reserved.
+            &copy; {new Date().getFullYear()} Cadet Colleges Test Preparation Portal. All rights reserved.
           </p>
         </div>
       </div>

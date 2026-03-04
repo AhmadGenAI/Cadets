@@ -30,7 +30,7 @@ export default function PortalPrep() {
     if (messages.length === 0) {
       setMessages([{
         role: "assistant",
-        content: `Assalam-o-Alaikum! I'm your AI tutor at Shaheen Forces Academy. I'm here to help you prepare for your cadet college entrance exam.\n\nI can help you with:\n- Subject-wise lessons and explanations\n- Practice MCQs and quizzes\n- Study tips and strategies\n- General knowledge preparation\n\nWhat would you like to study today? You can ask me about any subject like Math, English, Science, Urdu, or General Knowledge.`
+        content: `Assalam-o-Alaikum! I'm your AI tutor at Cadet Colleges Test Preparation Portal. I'm here to help you prepare for your cadet college entrance exam.\n\nI can help you with:\n- Subject-wise lessons and explanations\n- Practice MCQs and quizzes\n- Study tips and strategies\n- General knowledge preparation\n\nWhat would you like to study today? You can ask me about any subject like Math, English, Science, Urdu, or General Knowledge.`
       }]);
     }
   }, [user, isLoading]);
