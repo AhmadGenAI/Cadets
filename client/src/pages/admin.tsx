@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
@@ -67,6 +67,7 @@ export default function Admin() {
               <TabsTrigger value="packages" data-testid="tab-packages"><Package className="w-4 h-4 mr-1" /> Packages</TabsTrigger>
               <TabsTrigger value="pages" data-testid="tab-pages"><FileText className="w-4 h-4 mr-1" /> Pages</TabsTrigger>
               <TabsTrigger value="blog" data-testid="tab-blog"><FileText className="w-4 h-4 mr-1" /> Blog</TabsTrigger>
+              <TabsTrigger value="settings" data-testid="tab-settings"><Settings className="w-4 h-4 mr-1" /> Settings</TabsTrigger>
             </TabsList>
           </ScrollArea>
 
@@ -77,6 +78,7 @@ export default function Admin() {
           <TabsContent value="packages"><PackagesTab /></TabsContent>
           <TabsContent value="pages"><PagesTab /></TabsContent>
           <TabsContent value="blog"><BlogTab /></TabsContent>
+          <TabsContent value="settings"><SettingsTab /></TabsContent>
         </Tabs>
       </div>
     </div>
@@ -572,6 +574,81 @@ function BlogTab() {
             ))}
           </TableBody>
         </Table>
+      </Card>
+    </div>
+  );
+}
+
+function SettingsTab() {
+  const { toast } = useToast();
+  const { data: settings, isLoading } = useQuery<{ site_name: string; trial_days: number }>({
+    queryKey: ["/api/admin/settings"],
+  });
+
+  const [siteName, setSiteName] = useState("");
+  const [trialDays, setTrialDays] = useState("");
+
+  useEffect(() => {
+    if (settings) {
+      setSiteName(settings.site_name);
+      setTrialDays(String(settings.trial_days));
+    }
+  }, [settings]);
+
+  const mutation = useMutation({
+    mutationFn: async (data: { site_name?: string; trial_days?: number }) => {
+      await apiRequest("PATCH", "/api/admin/settings", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/settings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/settings/site"] });
+      toast({ title: "Settings saved" });
+    },
+    onError: (e: any) => {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    },
+  });
+
+  if (isLoading) return <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold">Site Settings</h2>
+
+      <Card className="p-6 max-w-lg space-y-5">
+        <div className="space-y-2">
+          <Label htmlFor="site-name">Site Name</Label>
+          <Input
+            id="site-name"
+            value={siteName}
+            onChange={e => setSiteName(e.target.value)}
+            placeholder="Enter site name"
+            data-testid="input-site-name"
+          />
+          <p className="text-xs text-muted-foreground">Displayed in the header, footer, and landing page.</p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="trial-days">Free Trial Days</Label>
+          <Input
+            id="trial-days"
+            type="number"
+            min="0"
+            value={trialDays}
+            onChange={e => setTrialDays(e.target.value)}
+            placeholder="3"
+            data-testid="input-trial-days"
+          />
+          <p className="text-xs text-muted-foreground">Number of free trial days for new registrations.</p>
+        </div>
+
+        <Button
+          onClick={() => mutation.mutate({ site_name: siteName, trial_days: parseInt(trialDays) })}
+          disabled={mutation.isPending}
+          data-testid="button-save-settings"
+        >
+          {mutation.isPending ? "Saving..." : "Save Settings"}
+        </Button>
       </Card>
     </div>
   );

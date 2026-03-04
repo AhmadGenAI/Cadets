@@ -102,6 +102,12 @@ export async function registerRoutes(
     res.json({ ok: true });
   });
 
+  // Public settings
+  app.get("/api/settings/site", async (_req, res) => {
+    const siteName = await storage.getSetting("site_name");
+    res.json({ siteName: siteName?.value ?? "Cadet Colleges Test Preparation Portal" });
+  });
+
   // Public routes
   app.get("/api/provinces", async (_req, res) => {
     const data = await storage.getProvinces();
@@ -324,6 +330,34 @@ export async function registerRoutes(
 
   app.delete("/api/admin/blog/:id", requireAdmin, async (req, res) => {
     await storage.deleteBlogPost(parseInt(req.params.id));
+    res.json({ ok: true });
+  });
+
+  // Admin settings
+  app.get("/api/admin/settings", requireAdmin, async (_req, res) => {
+    const siteName = await storage.getSetting("site_name");
+    const trialDays = await storage.getSetting("trial_days");
+    res.json({
+      site_name: siteName?.value ?? "Cadet Colleges Test Preparation Portal",
+      trial_days: trialDays?.value ?? 3,
+    });
+  });
+
+  app.patch("/api/admin/settings", requireAdmin, async (req, res) => {
+    const { site_name, trial_days } = req.body;
+    if (site_name !== undefined) {
+      if (typeof site_name !== "string" || site_name.trim().length === 0) {
+        return res.status(400).json({ message: "Site name is required" });
+      }
+      await storage.setSetting("site_name", site_name.trim());
+    }
+    if (trial_days !== undefined) {
+      const days = parseInt(trial_days);
+      if (isNaN(days) || days < 0) {
+        return res.status(400).json({ message: "Invalid trial days" });
+      }
+      await storage.setSetting("trial_days", days);
+    }
     res.json({ ok: true });
   });
 

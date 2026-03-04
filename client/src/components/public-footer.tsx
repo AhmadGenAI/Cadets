@@ -1,8 +1,11 @@
 import { Link } from "wouter";
 import { Shield } from "lucide-react";
 import { SiWhatsapp } from "react-icons/si";
+import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export function PublicFooter() {
+  const { siteName } = useSiteSettings();
+
   return (
     <footer className="bg-card border-t mt-auto">
       <div className="max-w-7xl mx-auto px-4 py-12">
@@ -12,7 +15,7 @@ export function PublicFooter() {
               <div className="w-9 h-9 rounded-md bg-primary flex items-center justify-center">
                 <Shield className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="font-bold text-lg">Cadet Colleges Test Preparation Portal</span>
+              <span className="font-bold text-lg">{siteName}</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Pakistan's leading cadet college preparation portal. Prepare for your future with smart learning tools.
@@ -57,7 +60,7 @@ export function PublicFooter() {
 
         <div className="border-t mt-8 pt-6 text-center">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Cadet Colleges Test Preparation Portal. All rights reserved.
+            &copy; {new Date().getFullYear()} {siteName}. All rights reserved.
           </p>
         </div>
       </div>
