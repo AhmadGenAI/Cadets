@@ -156,7 +156,7 @@ export async function seedDatabase() {
     name: "Free Trial",
     price: 0,
     durationDays: 3,
-    featuresJson: ["Access to AI Tutor", "5 MCQs per day", "Interview tips", "Medical guide"],
+    featuresJson: ["3 Days Free Access", "Daily 10 MCQs for each subject", "Access to AI Tutor", "Interview tips", "Medical guide"],
     isActive: true,
   });
   await storage.createPackage({
