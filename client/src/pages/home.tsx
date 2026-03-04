@@ -230,14 +230,14 @@ export default function Home() {
             whileInView="visible"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+            className="flex flex-wrap justify-center gap-5"
           >
             {collegesLoading
               ? Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} className="h-56 rounded-md" />
+                  <Skeleton key={i} className="w-full sm:w-[calc(50%-0.7rem)] md:w-[calc(33.333%-1rem)] h-56 rounded-md" />
                 ))
               : colleges?.filter(c => c.isFeatured).slice(0, 6).map((college) => (
-                  <motion.div key={college.id} variants={fadeUp}>
+                  <motion.div key={college.id} variants={fadeUp} className="w-full sm:w-[calc(50%-0.7rem)] md:w-[calc(33.333%-1rem)]">
                     <Card className="p-5 flex flex-col gap-3 h-full" data-testid={`card-college-${college.id}`}>
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
