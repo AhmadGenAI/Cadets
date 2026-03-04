@@ -17,20 +17,20 @@ import { Shield, Phone, Lock, Loader2 } from "lucide-react";
 import type { z } from "zod";
 
 const countryCodes = [
-  { code: "+92", country: "Pakistan", flag: "🇵🇰" },
-  { code: "+44", country: "United Kingdom", flag: "🇬🇧" },
-  { code: "+1", country: "United States", flag: "🇺🇸" },
-  { code: "+971", country: "UAE", flag: "🇦🇪" },
-  { code: "+966", country: "Saudi Arabia", flag: "🇸🇦" },
-  { code: "+1", country: "Canada", flag: "🇨🇦" },
-  { code: "+61", country: "Australia", flag: "🇦🇺" },
-  { code: "+974", country: "Qatar", flag: "🇶🇦" },
-  { code: "+973", country: "Bahrain", flag: "🇧🇭" },
-  { code: "+965", country: "Kuwait", flag: "🇰🇼" },
-  { code: "+968", country: "Oman", flag: "🇴🇲" },
-  { code: "+90", country: "Turkey", flag: "🇹🇷" },
-  { code: "+60", country: "Malaysia", flag: "🇲🇾" },
-  { code: "+49", country: "Germany", flag: "🇩🇪" },
+  { code: "+92", country: "Pakistan", flag: "🇵🇰", sample: "3001234567" },
+  { code: "+44", country: "United Kingdom", flag: "🇬🇧", sample: "7911234567" },
+  { code: "+1", country: "United States", flag: "🇺🇸", sample: "2025551234" },
+  { code: "+971", country: "UAE", flag: "🇦🇪", sample: "501234567" },
+  { code: "+966", country: "Saudi Arabia", flag: "🇸🇦", sample: "512345678" },
+  { code: "+1", country: "Canada", flag: "🇨🇦", sample: "6135551234" },
+  { code: "+61", country: "Australia", flag: "🇦🇺", sample: "412345678" },
+  { code: "+974", country: "Qatar", flag: "🇶🇦", sample: "55123456" },
+  { code: "+973", country: "Bahrain", flag: "🇧🇭", sample: "36001234" },
+  { code: "+965", country: "Kuwait", flag: "🇰🇼", sample: "51234567" },
+  { code: "+968", country: "Oman", flag: "🇴🇲", sample: "92123456" },
+  { code: "+90", country: "Turkey", flag: "🇹🇷", sample: "5321234567" },
+  { code: "+60", country: "Malaysia", flag: "🇲🇾", sample: "121234567" },
+  { code: "+49", country: "Germany", flag: "🇩🇪", sample: "15112345678" },
 ];
 
 const welcomeMessages = [
@@ -114,7 +114,7 @@ export default function Login() {
                         </Select>
                         <div className="relative flex-1">
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          <Input {...field} placeholder="3001234567" className="pl-10" data-testid="input-mobile" />
+                          <Input {...field} placeholder={`e.g. ${(countryCodes.find(c => `${c.code}__${c.country}` === selectedCodeKey) || countryCodes[0]).sample}`} className="pl-10" data-testid="input-mobile" />
                         </div>
                       </div>
                     </FormControl>

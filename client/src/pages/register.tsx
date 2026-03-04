@@ -18,24 +18,24 @@ import { Shield, Phone, Lock, User, Mail, Loader2, MapPin, GraduationCap, Users,
 import type { College, Province } from "@shared/schema";
 import type { z } from "zod";
 
-const countryCodes: Record<string, { code: string; flag: string }> = {
-  "Pakistan": { code: "+92", flag: "🇵🇰" },
-  "India": { code: "+91", flag: "🇮🇳" },
-  "Bangladesh": { code: "+880", flag: "🇧🇩" },
-  "Turkey": { code: "+90", flag: "🇹🇷" },
-  "United Kingdom": { code: "+44", flag: "🇬🇧" },
-  "United States": { code: "+1", flag: "🇺🇸" },
-  "United Arab Emirates": { code: "+971", flag: "🇦🇪" },
-  "Saudi Arabia": { code: "+966", flag: "🇸🇦" },
-  "Canada": { code: "+1", flag: "🇨🇦" },
-  "Australia": { code: "+61", flag: "🇦🇺" },
-  "Qatar": { code: "+974", flag: "🇶🇦" },
-  "Malaysia": { code: "+60", flag: "🇲🇾" },
-  "Bahrain": { code: "+973", flag: "🇧🇭" },
-  "Kuwait": { code: "+965", flag: "🇰🇼" },
-  "Oman": { code: "+968", flag: "🇴🇲" },
-  "Germany": { code: "+49", flag: "🇩🇪" },
-  "Other": { code: "+", flag: "🌍" },
+const countryCodes: Record<string, { code: string; flag: string; sample: string }> = {
+  "Pakistan": { code: "+92", flag: "🇵🇰", sample: "3001234567" },
+  "India": { code: "+91", flag: "🇮🇳", sample: "9812345678" },
+  "Bangladesh": { code: "+880", flag: "🇧🇩", sample: "1712345678" },
+  "Turkey": { code: "+90", flag: "🇹🇷", sample: "5321234567" },
+  "United Kingdom": { code: "+44", flag: "🇬🇧", sample: "7911234567" },
+  "United States": { code: "+1", flag: "🇺🇸", sample: "2025551234" },
+  "United Arab Emirates": { code: "+971", flag: "🇦🇪", sample: "501234567" },
+  "Saudi Arabia": { code: "+966", flag: "🇸🇦", sample: "512345678" },
+  "Canada": { code: "+1", flag: "🇨🇦", sample: "6135551234" },
+  "Australia": { code: "+61", flag: "🇦🇺", sample: "412345678" },
+  "Qatar": { code: "+974", flag: "🇶🇦", sample: "55123456" },
+  "Malaysia": { code: "+60", flag: "🇲🇾", sample: "121234567" },
+  "Bahrain": { code: "+973", flag: "🇧🇭", sample: "36001234" },
+  "Kuwait": { code: "+965", flag: "🇰🇼", sample: "51234567" },
+  "Oman": { code: "+968", flag: "🇴🇲", sample: "92123456" },
+  "Germany": { code: "+49", flag: "🇩🇪", sample: "15112345678" },
+  "Other": { code: "+", flag: "🌍", sample: "1234567890" },
 };
 
 const countryOrder = [
@@ -284,7 +284,7 @@ export default function Register() {
                         </div>
                         <div className="relative flex-1">
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          <Input {...field} placeholder="3001234567" className="pl-10" data-testid="input-mobile" />
+                          <Input {...field} placeholder={`e.g. ${dialInfo.sample}`} className="pl-10" data-testid="input-mobile" />
                         </div>
                       </div>
                     </FormControl>
