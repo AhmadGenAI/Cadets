@@ -25,17 +25,43 @@ export async function seedDatabase() {
   const sindh = await storage.createProvince({ name: "Sindh", imageUrl: "/images/province-sindh.png", sortOrder: 2 });
   const kpk = await storage.createProvince({ name: "Khyber Pakhtunkhwa", imageUrl: "/images/province-kpk.png", sortOrder: 3 });
   const balochistan = await storage.createProvince({ name: "Balochistan", imageUrl: "/images/province-balochistan.png", sortOrder: 4 });
+  const ajk = await storage.createProvince({ name: "Azad Jammu & Kashmir", imageUrl: "/images/province-ajk.png", sortOrder: 5 });
+  await storage.createProvince({ name: "Gilgit-Baltistan", imageUrl: "/images/province-gb.png", sortOrder: 6 });
+  await storage.createProvince({ name: "Islamabad Capital Territory", imageUrl: "/images/province-ict.png", sortOrder: 7 });
 
-  await storage.createCollege({ name: "Cadet College Hasan Abdal", provinceId: punjab.id, city: "Hasan Abdal", lastApplyDate: "2026-06-15", isFeatured: true });
-  await storage.createCollege({ name: "Lawrence College Ghora Gali", provinceId: punjab.id, city: "Murree", lastApplyDate: "2026-05-30", isFeatured: true });
-  await storage.createCollege({ name: "Military College Jhelum", provinceId: punjab.id, city: "Jhelum", lastApplyDate: "2026-06-01", isFeatured: false });
-  await storage.createCollege({ name: "Cadet College Petaro", provinceId: sindh.id, city: "Petaro", lastApplyDate: "2026-07-15", isFeatured: true });
-  await storage.createCollege({ name: "Cadet College Larkana", provinceId: sindh.id, city: "Larkana", lastApplyDate: "2026-07-01", isFeatured: false });
-  await storage.createCollege({ name: "Cadet College Razmak", provinceId: kpk.id, city: "Razmak", lastApplyDate: "2026-06-20", isFeatured: true });
-  await storage.createCollege({ name: "Cadet College Kohat", provinceId: kpk.id, city: "Kohat", lastApplyDate: "2026-06-10", isFeatured: false });
-  await storage.createCollege({ name: "Cadet College Mastung", provinceId: balochistan.id, city: "Mastung", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Hasan Abdal", provinceId: punjab.id, city: "Hasan Abdal", applyLink: "https://cch.edu.pk", isFeatured: true });
+  await storage.createCollege({ name: "Lawrence College Ghora Gali", provinceId: punjab.id, city: "Murree", isFeatured: true });
+  await storage.createCollege({ name: "Military College Jhelum", provinceId: punjab.id, city: "Jhelum", applyLink: "https://ccj.edu.pk", isFeatured: false });
   await storage.createCollege({ name: "PAF College Sargodha", provinceId: punjab.id, city: "Sargodha", isFeatured: true });
   await storage.createCollege({ name: "PAF Cadet College Murree Lower Topa", provinceId: punjab.id, city: "Murree", isFeatured: true });
+  await storage.createCollege({ name: "Cadet College Lahore", provinceId: punjab.id, city: "Lahore", applyLink: "https://www.cadetcollegelahore.com", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Jhang", provinceId: punjab.id, city: "Jhang", applyLink: "https://cadetcollegejhang.com", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Fateh Jang", provinceId: punjab.id, city: "Fateh Jang", applyLink: "https://ccf.edu.pk", isFeatured: false });
+  await storage.createCollege({ name: "Military College Murree", provinceId: punjab.id, city: "Murree", isFeatured: false });
+  await storage.createCollege({ name: "Pakistan Cadet School & College Murree", provinceId: punjab.id, city: "Murree", applyLink: "https://pakistancadetcollege.com", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Chakwal", provinceId: punjab.id, city: "Chakwal", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Sargodha", provinceId: punjab.id, city: "Sargodha", isFeatured: false });
+
+  await storage.createCollege({ name: "Cadet College Petaro", provinceId: sindh.id, city: "Petaro", isFeatured: true });
+  await storage.createCollege({ name: "Cadet College Larkana", provinceId: sindh.id, city: "Larkana", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Ghotki", provinceId: sindh.id, city: "Ghotki", isFeatured: false });
+  await storage.createCollege({ name: "PAF College Karachi", provinceId: sindh.id, city: "Karachi", isFeatured: false });
+  await storage.createCollege({ name: "PN Cadet College Karachi", provinceId: sindh.id, city: "Karachi", isFeatured: false });
+
+  await storage.createCollege({ name: "Cadet College Razmak", provinceId: kpk.id, city: "Razmak", isFeatured: true });
+  await storage.createCollege({ name: "Cadet College Kohat", provinceId: kpk.id, city: "Kohat", applyLink: "https://www.cck.edu.pk", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Warsak", provinceId: kpk.id, city: "Peshawar", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Swat", provinceId: kpk.id, city: "Swat", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Kanju Swabi", provinceId: kpk.id, city: "Swabi", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Mastuj Chitral", provinceId: kpk.id, city: "Chitral", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Spinkai", provinceId: kpk.id, city: "South Waziristan", isFeatured: false });
+
+  await storage.createCollege({ name: "Cadet College Mastung", provinceId: balochistan.id, city: "Mastung", isFeatured: false });
+  await storage.createCollege({ name: "Military College Sui", provinceId: balochistan.id, city: "Sui", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Turbat", provinceId: balochistan.id, city: "Turbat", isFeatured: false });
+
+  await storage.createCollege({ name: "Cadet College Muzaffarabad", provinceId: ajk.id, city: "Muzaffarabad", isFeatured: false });
+  await storage.createCollege({ name: "Cadet College Palandri", provinceId: ajk.id, city: "Palandri", isFeatured: false });
 
   await storage.createPackage({
     name: "Free Trial",
