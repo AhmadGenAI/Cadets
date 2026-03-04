@@ -41,7 +41,13 @@ export async function registerRoutes(
   app.post("/api/auth/register", async (req, res) => {
     try {
       const data = registerSchema.parse(req.body);
-      const existing = await storage.getUserByMobile(data.mobile);
+      let existing = await storage.getUserByMobile(data.mobile);
+      if (!existing && data.mobile.startsWith("+92")) {
+        existing = await storage.getUserByMobile("0" + data.mobile.slice(3));
+      }
+      if (!existing && data.mobile.startsWith("0")) {
+        existing = await storage.getUserByMobile("+92" + data.mobile.slice(1));
+      }
       if (existing) return res.status(400).json({ message: "Mobile number already registered" });
 
       const trialDaysSetting = await storage.getSetting("trial_days");
@@ -55,10 +61,12 @@ export async function registerRoutes(
         mobile: data.mobile,
         passwordHash: await hashPassword(data.password),
         name: data.name || null,
+        fatherName: data.fatherName || null,
         email: data.email || null,
         role: "student",
         selectedCollegeId: data.selectedCollegeId || null,
-        level: data.level || null,
+        selectedProvinceId: data.selectedProvinceId || null,
+        level: null,
         isActive: true,
         trialStartDate: now.toISOString().split("T")[0],
         trialEndDate: trialEnd.toISOString().split("T")[0],
@@ -75,7 +83,13 @@ export async function registerRoutes(
   app.post("/api/auth/login", async (req, res) => {
     try {
       const data = loginSchema.parse(req.body);
-      const user = await storage.getUserByMobile(data.mobile);
+      let user = await storage.getUserByMobile(data.mobile);
+      if (!user && data.mobile.startsWith("+92")) {
+        user = await storage.getUserByMobile("0" + data.mobile.slice(3));
+      }
+      if (!user && data.mobile.startsWith("0")) {
+        user = await storage.getUserByMobile("+92" + data.mobile.slice(1));
+      }
       if (!user) return res.status(401).json({ message: "Invalid mobile or password" });
 
       const valid = await comparePassword(data.password, user.passwordHash);
@@ -300,11 +314,11 @@ export async function registerRoutes(
   app.get("/api/admin/users/export", requireAdmin, async (_req, res) => {
     const users = await storage.getAllUsers();
     const csv = [
-      "ID,Mobile,Name,Email,Level,Package,Status,Created",
+      "ID,Mobile,Name,Father Name,Email,Package,Status,Created",
       ...users.filter(u => u.role === "student").map(u => {
         const endDate = u.packageExpiryDate || u.trialEndDate;
         const status = endDate && new Date(endDate) >= new Date() ? "Active" : "Expired";
-        return `${u.id},${u.mobile},${u.name || ""},${u.email || ""},${u.level || ""},${u.packageType || "trial"},${status},${u.createdAt?.toISOString() || ""}`;
+        return `${u.id},${u.mobile},${u.name || ""},${u.fatherName || ""},${u.email || ""},${u.packageType || "trial"},${status},${u.createdAt?.toISOString() || ""}`;
       })
     ].join("\n");
     res.setHeader("Content-Type", "text/csv");

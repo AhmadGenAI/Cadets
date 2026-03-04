@@ -34,7 +34,7 @@ export default function Login() {
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { mobile: "", password: "" },
+    defaultValues: { mobile: "+92", password: "" },
   });
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
@@ -72,11 +72,11 @@ export default function Login() {
                 name="mobile"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mobile Number</FormLabel>
+                    <FormLabel>Mobile Number (with country code)</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input {...field} placeholder="03001234567" className="pl-10" data-testid="input-mobile" />
+                        <Input {...field} placeholder="+923001234567" className="pl-10" data-testid="input-mobile" />
                       </div>
                     </FormControl>
                     <FormMessage />

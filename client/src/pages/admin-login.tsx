@@ -66,7 +66,7 @@ export default function AdminLogin() {
                   <FormControl>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input {...field} placeholder="03001234567" className="pl-10" data-testid="input-admin-mobile" />
+                      <Input {...field} placeholder="+923001234567" className="pl-10" data-testid="input-admin-mobile" />
                     </div>
                   </FormControl>
                   <FormMessage />

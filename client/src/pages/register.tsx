@@ -14,8 +14,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Phone, Lock, User, Mail, Loader2 } from "lucide-react";
-import type { College } from "@shared/schema";
+import { Shield, Phone, Lock, User, Mail, Loader2, MapPin, GraduationCap, Users } from "lucide-react";
+import type { College, Province } from "@shared/schema";
 import type { z } from "zod";
 
 export default function Register() {
@@ -24,12 +24,16 @@ export default function Register() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
+  const { data: provinces } = useQuery<Province[]>({ queryKey: ["/api/provinces"] });
   const { data: colleges } = useQuery<College[]>({ queryKey: ["/api/colleges"] });
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { mobile: "", password: "", name: "", email: "" },
+    defaultValues: { name: "", fatherName: "", mobile: "+92", email: "", selectedProvinceId: undefined, selectedCollegeId: undefined, password: "" },
   });
+
+  const selectedProvinceId = form.watch("selectedProvinceId");
+  const filteredColleges = colleges?.filter(c => !selectedProvinceId || c.provinceId === selectedProvinceId) ?? [];
 
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     setLoading(true);
@@ -65,14 +69,14 @@ export default function Register() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
-                name="mobile"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mobile Number *</FormLabel>
+                    <FormLabel>First Name *</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input {...field} placeholder="03001234567" className="pl-10" data-testid="input-mobile" />
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input {...field} placeholder="Student's first name" className="pl-10" data-testid="input-name" />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -81,14 +85,30 @@ export default function Register() {
               />
               <FormField
                 control={form.control}
-                name="name"
+                name="fatherName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel>Father Name *</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input {...field} placeholder="Your name" className="pl-10" data-testid="input-name" />
+                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input {...field} placeholder="Father's name" className="pl-10" data-testid="input-father-name" />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="mobile"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mobile Number *</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input {...field} placeholder="+923001234567" className="pl-10" data-testid="input-mobile" />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -100,13 +120,63 @@ export default function Register() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email (for reminders)</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input {...field} type="email" placeholder="you@example.com" className="pl-10" data-testid="input-email" />
                       </div>
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="selectedProvinceId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select Province</FormLabel>
+                    <Select onValueChange={(v) => { field.onChange(parseInt(v)); form.setValue("selectedCollegeId", undefined); }} value={field.value?.toString()}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-province">
+                          <MapPin className="w-4 h-4 mr-1 text-muted-foreground" />
+                          <SelectValue placeholder="Choose your province" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {provinces?.map(p => (
+                          <SelectItem key={p.id} value={p.id.toString()}>
+                            {p.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="selectedCollegeId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select Cadet College</FormLabel>
+                    <Select onValueChange={(v) => field.onChange(parseInt(v))} value={field.value?.toString()}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-college">
+                          <GraduationCap className="w-4 h-4 mr-1 text-muted-foreground" />
+                          <SelectValue placeholder={selectedProvinceId ? "Choose a cadet college" : "Select province first"} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {filteredColleges.map(c => (
+                          <SelectItem key={c.id} value={c.id.toString()}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -123,30 +193,6 @@ export default function Register() {
                         <Input {...field} type="password" placeholder="Min. 6 characters" className="pl-10" data-testid="input-password" />
                       </div>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="selectedCollegeId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Choose Cadet College</FormLabel>
-                    <Select onValueChange={(v) => field.onChange(parseInt(v))} value={field.value?.toString()}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-college">
-                          <SelectValue placeholder="Select a college" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {colleges?.map(c => (
-                          <SelectItem key={c.id} value={c.id.toString()}>
-                            {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

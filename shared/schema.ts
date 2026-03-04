@@ -8,9 +8,11 @@ export const users = pgTable("users", {
   mobile: varchar("mobile", { length: 20 }).notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   name: varchar("name", { length: 100 }),
+  fatherName: varchar("father_name", { length: 100 }),
   email: varchar("email", { length: 255 }),
   role: varchar("role", { length: 20 }).notNull().default("student"),
   selectedCollegeId: integer("selected_college_id"),
+  selectedProvinceId: integer("selected_province_id"),
   level: varchar("level", { length: 30 }),
   preferredLanguage: varchar("preferred_language", { length: 20 }),
   isActive: boolean("is_active").notNull().default(true),
@@ -117,11 +119,13 @@ export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({ id: tru
 export const insertAssessmentQuestionSchema = createInsertSchema(assessmentQuestions).omit({ id: true });
 
 export const registerSchema = z.object({
-  mobile: z.string().min(10, "Mobile number is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  name: z.string().optional(),
+  name: z.string().min(1, "First name is required"),
+  fatherName: z.string().min(1, "Father name is required"),
+  mobile: z.string().min(10, "Mobile number with country code is required (e.g. +923001234567)"),
   email: z.string().email().optional().or(z.literal("")),
+  selectedProvinceId: z.number().optional(),
   selectedCollegeId: z.number().optional(),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 export const loginSchema = z.object({
