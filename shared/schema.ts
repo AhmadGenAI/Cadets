@@ -26,6 +26,7 @@ export const provinces = pgTable("provinces", {
   name: varchar("name", { length: 100 }).notNull(),
   imageUrl: text("image_url"),
   sortOrder: integer("sort_order").notNull().default(0),
+  isVisible: boolean("is_visible").notNull().default(true),
 });
 
 export const colleges = pgTable("colleges", {

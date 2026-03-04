@@ -218,6 +218,15 @@ function ProvincesTab() {
     },
   });
 
+  const toggleVisibility = useMutation({
+    mutationFn: async ({ id, isVisible }: { id: number; isVisible: boolean }) => {
+      await apiRequest("PATCH", `/api/admin/provinces/${id}`, { isVisible });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/provinces"] });
+    },
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
@@ -236,16 +245,29 @@ function ProvincesTab() {
           </DialogContent>
         </Dialog>
       </div>
+      <p className="text-sm text-muted-foreground">Toggle visibility to show or hide provinces on the landing page.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {provinces?.map(p => (
           <Card key={p.id} className="p-4 flex items-center justify-between gap-2" data-testid={`card-admin-province-${p.id}`}>
             <div className="flex items-center gap-3">
               {p.imageUrl && <img src={p.imageUrl} alt={p.name} className="w-10 h-10 rounded-md object-cover" />}
-              <span className="font-medium">{p.name}</span>
+              <div>
+                <span className="font-medium">{p.name}</span>
+                <span className={`block text-xs ${p.isVisible ? "text-green-600" : "text-muted-foreground"}`}>
+                  {p.isVisible ? "Visible on landing" : "Hidden"}
+                </span>
+              </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(p.id)} data-testid={`button-delete-province-${p.id}`}>
-              <Trash2 className="w-4 h-4 text-destructive" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={p.isVisible}
+                onCheckedChange={(checked) => toggleVisibility.mutate({ id: p.id, isVisible: checked })}
+                data-testid={`switch-visibility-province-${p.id}`}
+              />
+              <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(p.id)} data-testid={`button-delete-province-${p.id}`}>
+                <Trash2 className="w-4 h-4 text-destructive" />
+              </Button>
+            </div>
           </Card>
         ))}
       </div>
