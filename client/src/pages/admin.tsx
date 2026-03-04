@@ -711,29 +711,55 @@ function BlogTab() {
   );
 }
 
+type ForceBox = { title: string; image: string; url: string };
+type SettingsData = {
+  site_name: string;
+  trial_days: number;
+  hero_media: string;
+  hero_media_type: string;
+  bg_audio: string;
+  force_boxes: ForceBox[] | null;
+  cta_bg_image: string;
+};
+
 function SettingsTab() {
   const { toast } = useToast();
-  const { data: settings, isLoading } = useQuery<{ site_name: string; trial_days: number }>({
+  const { data: settings, isLoading } = useQuery<SettingsData>({
     queryKey: ["/api/admin/settings"],
   });
 
   const [siteName, setSiteName] = useState("");
   const [trialDays, setTrialDays] = useState("");
+  const [heroMedia, setHeroMedia] = useState("");
+  const [heroMediaType, setHeroMediaType] = useState("image");
+  const [bgAudio, setBgAudio] = useState("");
+  const [ctaBgImage, setCtaBgImage] = useState("");
+  const [forceBoxesList, setForceBoxesList] = useState<ForceBox[]>([]);
+  const [newBox, setNewBox] = useState<ForceBox>({ title: "", image: "", url: "" });
+  const [editBoxIdx, setEditBoxIdx] = useState<number | null>(null);
 
   useEffect(() => {
     if (settings) {
       setSiteName(settings.site_name);
       setTrialDays(String(settings.trial_days));
+      setHeroMedia(settings.hero_media || "");
+      setHeroMediaType(settings.hero_media_type || "image");
+      setBgAudio(settings.bg_audio || "");
+      setCtaBgImage(settings.cta_bg_image || "");
+      if (settings.force_boxes && Array.isArray(settings.force_boxes)) {
+        setForceBoxesList(settings.force_boxes);
+      }
     }
   }, [settings]);
 
   const mutation = useMutation({
-    mutationFn: async (data: { site_name?: string; trial_days?: number }) => {
+    mutationFn: async (data: Partial<SettingsData>) => {
       await apiRequest("PATCH", "/api/admin/settings", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/settings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/settings/site"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/settings/homepage"] });
       toast({ title: "Settings saved" });
     },
     onError: (e: any) => {
@@ -741,46 +767,203 @@ function SettingsTab() {
     },
   });
 
+  const saveAll = () => {
+    mutation.mutate({
+      site_name: siteName,
+      trial_days: parseInt(trialDays) as any,
+      hero_media: heroMedia,
+      hero_media_type: heroMediaType,
+      bg_audio: bgAudio,
+      cta_bg_image: ctaBgImage,
+      force_boxes: forceBoxesList as any,
+    });
+  };
+
+  const addOrUpdateBox = () => {
+    if (!newBox.title.trim()) return;
+    if (editBoxIdx !== null) {
+      const updated = [...forceBoxesList];
+      updated[editBoxIdx] = { ...newBox };
+      setForceBoxesList(updated);
+      setEditBoxIdx(null);
+    } else {
+      setForceBoxesList([...forceBoxesList, { ...newBox }]);
+    }
+    setNewBox({ title: "", image: "", url: "" });
+  };
+
+  const removeBox = (idx: number) => {
+    setForceBoxesList(forceBoxesList.filter((_, i) => i !== idx));
+  };
+
+  const editBox = (idx: number) => {
+    setNewBox({ ...forceBoxesList[idx] });
+    setEditBoxIdx(idx);
+  };
+
   if (isLoading) return <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Site Settings</h2>
 
-      <Card className="p-6 max-w-lg space-y-5">
-        <div className="space-y-2">
-          <Label htmlFor="site-name">Site Name</Label>
-          <Input
-            id="site-name"
-            value={siteName}
-            onChange={e => setSiteName(e.target.value)}
-            placeholder="Enter site name"
-            data-testid="input-site-name"
-          />
-          <p className="text-xs text-muted-foreground">Displayed in the header, footer, and landing page.</p>
+      <Card className="p-6 space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="site-name">Site Name</Label>
+              <Input
+                id="site-name"
+                value={siteName}
+                onChange={e => setSiteName(e.target.value)}
+                placeholder="Enter site name"
+                data-testid="input-site-name"
+              />
+              <p className="text-xs text-muted-foreground">Displayed in the header, footer, and landing page.</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="trial-days">Free Trial Days</Label>
+              <Input
+                id="trial-days"
+                type="number"
+                min="0"
+                value={trialDays}
+                onChange={e => setTrialDays(e.target.value)}
+                placeholder="3"
+                data-testid="input-trial-days"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <Label>Hero Section Media Type</Label>
+              <Select value={heroMediaType} onValueChange={setHeroMediaType}>
+                <SelectTrigger data-testid="select-hero-media-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="image">Image</SelectItem>
+                  <SelectItem value="video">Video</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="hero-media">Hero {heroMediaType === "video" ? "Video" : "Image"} URL</Label>
+              <Input
+                id="hero-media"
+                value={heroMedia}
+                onChange={e => setHeroMedia(e.target.value)}
+                placeholder={heroMediaType === "video" ? "https://example.com/hero-video.mp4" : "https://example.com/hero-image.jpg"}
+                data-testid="input-hero-media"
+              />
+              <p className="text-xs text-muted-foreground">
+                {heroMediaType === "video"
+                  ? "Direct video file URL (.mp4). Plays automatically in hero section."
+                  : "Image URL for the hero background. Leave empty for default."}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="trial-days">Free Trial Days</Label>
-          <Input
-            id="trial-days"
-            type="number"
-            min="0"
-            value={trialDays}
-            onChange={e => setTrialDays(e.target.value)}
-            placeholder="3"
-            data-testid="input-trial-days"
-          />
-          <p className="text-xs text-muted-foreground">Number of free trial days for new registrations.</p>
+        <div className="border-t pt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="bg-audio">Background Audio URL</Label>
+            <Input
+              id="bg-audio"
+              value={bgAudio}
+              onChange={e => setBgAudio(e.target.value)}
+              placeholder="https://example.com/background-music.mp3"
+              data-testid="input-bg-audio"
+            />
+            <p className="text-xs text-muted-foreground">Audio file URL (.mp3) that plays when the website opens. Leave empty to disable.</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cta-bg-image">CTA Section Background Image</Label>
+            <Input
+              id="cta-bg-image"
+              value={ctaBgImage}
+              onChange={e => setCtaBgImage(e.target.value)}
+              placeholder="https://example.com/cta-background.jpg"
+              data-testid="input-cta-bg-image"
+            />
+            <p className="text-xs text-muted-foreground">Background image for "Ready to Start Your Preparation" section. Leave empty for default color.</p>
+          </div>
         </div>
 
-        <Button
-          onClick={() => mutation.mutate({ site_name: siteName, trial_days: parseInt(trialDays) })}
-          disabled={mutation.isPending}
-          data-testid="button-save-settings"
-        >
-          {mutation.isPending ? "Saving..." : "Save Settings"}
-        </Button>
+        <div className="border-t pt-5">
+          <Label className="text-base font-semibold mb-3 block">Armed Forces Preparation Boxes</Label>
+          <p className="text-xs text-muted-foreground mb-4">Add boxes with title, image URL, and optional link. These appear in the "Armed Forces Preparation" section.</p>
+
+          {forceBoxesList.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {forceBoxesList.map((box, idx) => (
+                <div key={idx} className="flex items-center gap-3 p-3 bg-muted rounded-md" data-testid={`row-force-box-${idx}`}>
+                  {box.image && (
+                    <img src={box.image} alt={box.title} className="w-12 h-12 object-cover rounded-md shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{box.title}</p>
+                    {box.url && <p className="text-xs text-muted-foreground truncate">{box.url}</p>}
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => editBox(idx)} data-testid={`button-edit-box-${idx}`}>
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => removeBox(idx)} data-testid={`button-remove-box-${idx}`}>
+                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
+            <div>
+              <Label className="text-xs">Title</Label>
+              <Input
+                value={newBox.title}
+                onChange={e => setNewBox({ ...newBox, title: e.target.value })}
+                placeholder="Pakistan Army"
+                data-testid="input-box-title"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Image URL</Label>
+              <Input
+                value={newBox.image}
+                onChange={e => setNewBox({ ...newBox, image: e.target.value })}
+                placeholder="https://..."
+                data-testid="input-box-image"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Link URL (optional)</Label>
+              <Input
+                value={newBox.url}
+                onChange={e => setNewBox({ ...newBox, url: e.target.value })}
+                placeholder="https://..."
+                data-testid="input-box-url"
+              />
+            </div>
+            <Button onClick={addOrUpdateBox} disabled={!newBox.title.trim()} data-testid="button-add-box">
+              {editBoxIdx !== null ? "Update" : <><Plus className="w-4 h-4 mr-1" /> Add</>}
+            </Button>
+          </div>
+        </div>
+
+        <div className="border-t pt-5">
+          <Button
+            onClick={saveAll}
+            disabled={mutation.isPending}
+            className="w-full sm:w-auto"
+            data-testid="button-save-settings"
+          >
+            {mutation.isPending ? "Saving..." : "Save All Settings"}
+          </Button>
+        </div>
       </Card>
     </div>
   );

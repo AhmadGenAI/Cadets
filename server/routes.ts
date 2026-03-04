@@ -643,14 +643,39 @@ export async function registerRoutes(
   app.get("/api/admin/settings", requireAdmin, async (_req, res) => {
     const siteName = await storage.getSetting("site_name");
     const trialDays = await storage.getSetting("trial_days");
+    const heroMedia = await storage.getSetting("hero_media");
+    const heroMediaType = await storage.getSetting("hero_media_type");
+    const bgAudio = await storage.getSetting("bg_audio");
+    const forceBoxes = await storage.getSetting("force_boxes");
+    const ctaBgImage = await storage.getSetting("cta_bg_image");
     res.json({
       site_name: siteName?.value ?? "Cadet Colleges Test Preparation Portal",
       trial_days: trialDays?.value ?? 3,
+      hero_media: heroMedia?.value ?? "",
+      hero_media_type: heroMediaType?.value ?? "image",
+      bg_audio: bgAudio?.value ?? "",
+      force_boxes: forceBoxes?.value ?? null,
+      cta_bg_image: ctaBgImage?.value ?? "",
+    });
+  });
+
+  app.get("/api/settings/homepage", async (_req, res) => {
+    const heroMedia = await storage.getSetting("hero_media");
+    const heroMediaType = await storage.getSetting("hero_media_type");
+    const bgAudio = await storage.getSetting("bg_audio");
+    const forceBoxes = await storage.getSetting("force_boxes");
+    const ctaBgImage = await storage.getSetting("cta_bg_image");
+    res.json({
+      hero_media: heroMedia?.value ?? "",
+      hero_media_type: heroMediaType?.value ?? "image",
+      bg_audio: bgAudio?.value ?? "",
+      force_boxes: forceBoxes?.value ?? null,
+      cta_bg_image: ctaBgImage?.value ?? "",
     });
   });
 
   app.patch("/api/admin/settings", requireAdmin, async (req, res) => {
-    const { site_name, trial_days } = req.body;
+    const { site_name, trial_days, hero_media, hero_media_type, bg_audio, force_boxes, cta_bg_image } = req.body;
     if (site_name !== undefined) {
       if (typeof site_name !== "string" || site_name.trim().length === 0) {
         return res.status(400).json({ message: "Site name is required" });
@@ -663,6 +688,21 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Invalid trial days" });
       }
       await storage.setSetting("trial_days", days);
+    }
+    if (hero_media !== undefined) {
+      await storage.setSetting("hero_media", hero_media);
+    }
+    if (hero_media_type !== undefined) {
+      await storage.setSetting("hero_media_type", hero_media_type);
+    }
+    if (bg_audio !== undefined) {
+      await storage.setSetting("bg_audio", bg_audio);
+    }
+    if (force_boxes !== undefined) {
+      await storage.setSetting("force_boxes", force_boxes);
+    }
+    if (cta_bg_image !== undefined) {
+      await storage.setSetting("cta_bg_image", cta_bg_image);
     }
     res.json({ ok: true });
   });

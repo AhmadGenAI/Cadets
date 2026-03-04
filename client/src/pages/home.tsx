@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
 import { ChatbotWidget } from "@/components/chatbot-widget";
 import { SeoHead } from "@/components/seo-head";
-import { GraduationCap, MapPin, Calendar, ChevronRight, Anchor, Plane, Swords, BookOpen, Users, Award, Brain, ClipboardCheck } from "lucide-react";
+import { GraduationCap, MapPin, Calendar, ChevronRight, Anchor, Plane, Swords, BookOpen, Users, Award, Brain, ClipboardCheck, Volume2, VolumeX } from "lucide-react";
 import type { Province, College } from "@shared/schema";
 import { motion } from "framer-motion";
 
@@ -23,11 +24,45 @@ const staggerContainer = {
   visible: { transition: { staggerChildren: 0.1 } },
 };
 
-const forceBoxes = [
-  { title: "Pakistan Army", icon: Swords, image: "/images/army-box.png", color: "from-green-900/90 to-green-700/90" },
-  { title: "Pakistan Navy", icon: Anchor, image: "/images/navy-box.png", color: "from-blue-900/90 to-blue-700/90" },
-  { title: "Pakistan Air Force", icon: Plane, image: "/images/paf-box.png", color: "from-sky-900/90 to-sky-700/90" },
+const defaultForceBoxes = [
+  { title: "Pakistan Army", image: "/images/army-box.png", url: "" },
+  { title: "Pakistan Navy", image: "/images/navy-box.png", url: "" },
+  { title: "Pakistan Air Force", image: "/images/paf-box.png", url: "" },
 ];
+
+const forceIcons: Record<string, any> = {
+  army: Swords,
+  navy: Anchor,
+  air: Plane,
+  force: Plane,
+};
+
+const forceColors = [
+  "from-green-900/90 to-green-700/90",
+  "from-blue-900/90 to-blue-700/90",
+  "from-sky-900/90 to-sky-700/90",
+  "from-red-900/90 to-red-700/90",
+  "from-amber-900/90 to-amber-700/90",
+  "from-purple-900/90 to-purple-700/90",
+  "from-teal-900/90 to-teal-700/90",
+  "from-indigo-900/90 to-indigo-700/90",
+];
+
+function getForceIcon(title: string) {
+  const lower = title.toLowerCase();
+  for (const [key, icon] of Object.entries(forceIcons)) {
+    if (lower.includes(key)) return icon;
+  }
+  return Swords;
+}
+
+type HomepageSettings = {
+  hero_media: string;
+  hero_media_type: string;
+  bg_audio: string;
+  force_boxes: { title: string; image: string; url: string }[] | null;
+  cta_bg_image: string;
+};
 
 const stats = [
   { label: "Cadet Colleges", value: "30+", icon: GraduationCap },
@@ -44,6 +79,56 @@ export default function Home() {
     queryKey: ["/api/colleges"],
   });
 
+  const { data: hpSettings } = useQuery<HomepageSettings>({
+    queryKey: ["/api/settings/homepage"],
+  });
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audioInitialized, setAudioInitialized] = useState(false);
+
+  useEffect(() => {
+    if (!hpSettings?.bg_audio || audioInitialized) return;
+    const audio = new Audio(hpSettings.bg_audio);
+    audio.loop = true;
+    audio.volume = 0.3;
+    audioRef.current = audio;
+
+    const tryPlay = () => {
+      audio.play().then(() => {
+        setAudioPlaying(true);
+        setAudioInitialized(true);
+      }).catch(() => {});
+      document.removeEventListener("click", tryPlay);
+      document.removeEventListener("touchstart", tryPlay);
+    };
+
+    document.addEventListener("click", tryPlay);
+    document.addEventListener("touchstart", tryPlay);
+
+    return () => {
+      document.removeEventListener("click", tryPlay);
+      document.removeEventListener("touchstart", tryPlay);
+      audio.pause();
+      audio.src = "";
+    };
+  }, [hpSettings?.bg_audio, audioInitialized]);
+
+  const toggleAudio = () => {
+    if (!audioRef.current) return;
+    if (audioPlaying) {
+      audioRef.current.pause();
+      setAudioPlaying(false);
+    } else {
+      audioRef.current.play().then(() => setAudioPlaying(true)).catch(() => {});
+    }
+  };
+
+  const heroMedia = hpSettings?.hero_media || "";
+  const heroMediaType = hpSettings?.hero_media_type || "image";
+  const forceBoxes = (hpSettings?.force_boxes && hpSettings.force_boxes.length > 0) ? hpSettings.force_boxes : defaultForceBoxes;
+  const ctaBgImage = hpSettings?.cta_bg_image || "";
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SeoHead
@@ -55,11 +140,32 @@ export default function Home() {
       <AlertBar />
 
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/images/hero-bg.png)" }}
-        />
+        {heroMediaType === "video" && heroMedia ? (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            src={heroMedia}
+          />
+        ) : (
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${heroMedia || "/images/hero-bg.png"})` }}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+        {hpSettings?.bg_audio && (
+          <button
+            onClick={toggleAudio}
+            className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+            data-testid="button-toggle-audio"
+            aria-label={audioPlaying ? "Mute audio" : "Play audio"}
+          >
+            {audioPlaying ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+          </button>
+        )}
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
           <motion.div
             initial="hidden"
@@ -289,8 +395,10 @@ export default function Home() {
           variants={staggerContainer}
           className="grid grid-cols-1 md:grid-cols-3 gap-5"
         >
-          {forceBoxes.map((box) => (
-            <motion.div key={box.title} variants={fadeUp}>
+          {forceBoxes.map((box, idx) => {
+            const IconComp = getForceIcon(box.title);
+            const colorClass = forceColors[idx % forceColors.length];
+            const cardContent = (
               <Card
                 className="relative overflow-hidden h-56 cursor-pointer group"
                 data-testid={`card-force-${box.title.replace(/\s/g, '-').toLowerCase()}`}
@@ -300,24 +408,39 @@ export default function Home() {
                   alt={box.title}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className={`absolute inset-0 bg-gradient-to-t ${box.color}`} />
+                <div className={`absolute inset-0 bg-gradient-to-t ${colorClass}`} />
                 <div className="relative z-10 h-full flex flex-col items-center justify-center gap-3">
-                  <box.icon className="w-10 h-10 text-white" />
+                  <IconComp className="w-10 h-10 text-white" />
                   <h3 className="text-xl font-bold text-white">{box.title}</h3>
                 </div>
               </Card>
-            </motion.div>
-          ))}
+            );
+            return (
+              <motion.div key={box.title + idx} variants={fadeUp}>
+                {box.url ? (
+                  <a href={box.url} target="_blank" rel="noopener noreferrer">{cardContent}</a>
+                ) : cardContent}
+              </motion.div>
+            );
+          })}
         </motion.div>
       </section>
 
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="max-w-3xl mx-auto px-4 text-center">
+      <section className="py-20 relative overflow-hidden">
+        {ctaBgImage ? (
+          <>
+            <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${ctaBgImage})` }} />
+            <div className="absolute inset-0 bg-primary/80" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-primary" />
+        )}
+        <div className="max-w-3xl mx-auto px-4 text-center relative z-10">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
-            <motion.h2 variants={fadeUp} className="text-3xl font-bold mb-4">
+            <motion.h2 variants={fadeUp} className="text-3xl font-bold mb-4 text-primary-foreground">
               Ready to Start Your Preparation?
             </motion.h2>
-            <motion.p variants={fadeUp} className="text-lg opacity-90 mb-8">
+            <motion.p variants={fadeUp} className="text-lg opacity-90 mb-8 text-primary-foreground">
               Join thousands of students already preparing for their cadet college entrance exams.
             </motion.p>
             <motion.div variants={fadeUp}>

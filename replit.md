@@ -36,7 +36,7 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 - `pages` - Static content pages (about, terms, privacy)
 - `blog_posts` - Blog articles
 - `assessment_questions` - Personality and academic assessment questions (316 seeded)
-- `settings` - Key-value site settings
+- `settings` - Key-value site settings (site_name, trial_days, hero_media, hero_media_type, bg_audio, force_boxes, cta_bg_image)
 
 ## Admin Credentials (Dev)
 - Mobile: 03000000000
