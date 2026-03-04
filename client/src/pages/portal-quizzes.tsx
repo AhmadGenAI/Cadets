@@ -46,11 +46,9 @@ export default function PortalQuizzes() {
   const [usedQuestionIds, setUsedQuestionIds] = useState<Set<number>>(new Set());
   const [quizQuestions, setQuizQuestions] = useState<McqQuestion[]>([]);
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
-  if (!user) { setLocation("/login"); return null; }
-
+  const level = user?.level || "middle";
   const { data: mcqs, isLoading } = useQuery<McqQuestion[]>({
-    queryKey: ["/api/mcqs", user.level || "middle"],
+    queryKey: ["/api/mcqs", level],
     enabled: !!user,
   });
 
@@ -63,6 +61,9 @@ export default function PortalQuizzes() {
     const shuffled = shuffleArray(pool);
     return shuffled.slice(0, QUIZ_SIZE);
   }, [mcqs]);
+
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
+  if (!user) { setLocation("/login"); return null; }
 
   const startQuiz = () => {
     const questions = pickQuizQuestions(selectedSubject, usedQuestionIds);
