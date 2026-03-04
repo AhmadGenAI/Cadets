@@ -32,7 +32,7 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 - `colleges` - Cadet colleges/military schools linked to provinces (with feeStructure, contactNumber, admissionClasses) — includes international institutions
 - `packages` - Subscription packages (trial, standard, premium)
 - `syllabus` - Study material organized by level/subject
-- `mcq_bank` - Multiple choice questions for practice
+- `mcq_bank` - Multiple choice questions for practice (195 seeded: Math 50, English 40, General Science 40, GK 40, Urdu 25)
 - `pages` - Static content pages (about, terms, privacy)
 - `blog_posts` - Blog articles
 - `assessment_questions` - Personality and academic assessment questions (316 seeded)
@@ -50,6 +50,7 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 - `server/auth.ts` - Password hashing utilities
 - `server/pdf.ts` - PDF generation with watermark (pdfkit)
 - `server/seed.ts` - Seed data
+- `server/mcq-seed.ts` - Expanded MCQ bank seeder (auto-runs on startup, skips if already seeded)
 - `uploads/` - User-uploaded files (images, audio, video) served statically at /uploads/
 - `client/src/pages/` - All page components
 - `client/src/components/` - Shared components

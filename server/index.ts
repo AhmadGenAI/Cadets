@@ -70,6 +70,8 @@ app.use((req, res, next) => {
 (async () => {
   const { seedDatabase } = await import("./seed");
   await seedDatabase().catch(e => console.error("Seed error:", e));
+  const { seedMcqBank } = await import("./mcq-seed");
+  await seedMcqBank().catch(e => console.error("MCQ seed error:", e));
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {

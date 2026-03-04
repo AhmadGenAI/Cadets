@@ -208,25 +208,6 @@ export async function seedDatabase() {
     publishedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
   });
 
-  const mcqs = [
-    { level: "middle", subject: "Mathematics", questionText: "What is 25% of 200?", optionsJson: { a: "25", b: "50", c: "75", d: "100" }, correctOption: "b", explanation: "25% of 200 = (25/100) x 200 = 50" },
-    { level: "middle", subject: "Mathematics", questionText: "If x + 5 = 12, what is x?", optionsJson: { a: "5", b: "6", c: "7", d: "8" }, correctOption: "c", explanation: "x = 12 - 5 = 7" },
-    { level: "middle", subject: "Mathematics", questionText: "What is the area of a rectangle with length 8 and width 5?", optionsJson: { a: "13", b: "26", c: "40", d: "45" }, correctOption: "c", explanation: "Area = length x width = 8 x 5 = 40" },
-    { level: "middle", subject: "English", questionText: "Choose the correct spelling:", optionsJson: { a: "Recieve", b: "Receive", c: "Receve", d: "Recieve" }, correctOption: "b", explanation: "The correct spelling follows the 'i before e except after c' rule." },
-    { level: "middle", subject: "English", questionText: "What is the past tense of 'go'?", optionsJson: { a: "Goed", b: "Gone", c: "Went", d: "Going" }, correctOption: "c", explanation: "'Went' is the simple past tense of 'go'." },
-    { level: "middle", subject: "English", questionText: "Select the correct sentence:", optionsJson: { a: "He don't know", b: "He doesn't know", c: "He doesn't knows", d: "He not know" }, correctOption: "b", explanation: "With third person singular (he/she/it), we use 'doesn't' + base verb." },
-    { level: "middle", subject: "General Knowledge", questionText: "What is the capital of Pakistan?", optionsJson: { a: "Lahore", b: "Karachi", c: "Islamabad", d: "Peshawar" }, correctOption: "c", explanation: "Islamabad is the capital of Pakistan since 1967." },
-    { level: "middle", subject: "General Knowledge", questionText: "How many provinces does Pakistan have?", optionsJson: { a: "3", b: "4", c: "5", d: "6" }, correctOption: "b", explanation: "Pakistan has 4 provinces: Punjab, Sindh, KPK, and Balochistan." },
-    { level: "middle", subject: "General Knowledge", questionText: "Which is the longest river of Pakistan?", optionsJson: { a: "Ravi", b: "Chenab", c: "Indus", d: "Jhelum" }, correctOption: "c", explanation: "The Indus River (Darya-e-Sindh) is the longest river in Pakistan." },
-    { level: "middle", subject: "General Knowledge", questionText: "Pakistan became independent on:", optionsJson: { a: "14 August 1947", b: "23 March 1940", c: "15 August 1947", d: "26 January 1950" }, correctOption: "a", explanation: "Pakistan gained independence on 14 August 1947." },
-    { level: "middle", subject: "Science", questionText: "What is the chemical formula for water?", optionsJson: { a: "CO2", b: "H2O", c: "O2", d: "NaCl" }, correctOption: "b", explanation: "Water is composed of 2 hydrogen atoms and 1 oxygen atom: H2O." },
-    { level: "middle", subject: "Science", questionText: "Which planet is closest to the Sun?", optionsJson: { a: "Venus", b: "Earth", c: "Mercury", d: "Mars" }, correctOption: "c", explanation: "Mercury is the closest planet to the Sun in our solar system." },
-  ];
-
-  for (const mcq of mcqs) {
-    await storage.createMcq(mcq);
-  }
-
   await storage.setSetting("trial_days", 3);
   await storage.setSetting("site_name", "Cadet Colleges Test Preparation Portal");
 
