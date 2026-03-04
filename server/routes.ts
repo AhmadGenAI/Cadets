@@ -141,6 +141,75 @@ export async function registerRoutes(
     res.json(page);
   });
 
+  // Public chatbot
+  app.post("/api/chatbot", async (req, res) => {
+    const { message } = req.body;
+    if (!message || typeof message !== "string" || message.trim().length === 0) {
+      return res.status(400).json({ message: "Message is required" });
+    }
+    if (message.length > 500) {
+      return res.status(400).json({ message: "Message too long" });
+    }
+
+    const lowerMsg = message.toLowerCase().trim();
+    let reply = "";
+
+    const cadetKeywords = ["cadet", "college", "admission", "entry test", "preparation", "exam", "syllabus", "fee", "hostel", "uniform", "medical", "interview", "age", "eligibility", "merit", "apply", "application", "last date", "hasan abdal", "petaro", "kohat", "rawalakot", "sui", "larkana", "murree", "lawrence", "pano aqil", "pakistan", "army", "navy", "air force", "paf", "military", "test date", "result", "mcq", "english", "math", "urdu", "islamiat", "science", "gk", "general knowledge", "quiz", "practice", "preparation", "province", "punjab", "sindh", "kpk", "balochistan", "class 7", "class 8", "middle", "matric", "8th", "7th", "6th"];
+
+    const isCadetRelated = cadetKeywords.some(kw => lowerMsg.includes(kw));
+
+    const greetings = ["hi", "hello", "assalam", "salam", "aoa", "hey", "good morning", "good evening"];
+    const isGreeting = greetings.some(g => lowerMsg.startsWith(g) || lowerMsg === g);
+
+    if (isGreeting) {
+      reply = "Assalam-o-Alaikum! Welcome to Cadet Colleges Test Preparation Portal.\n\nI can help you with:\n- **Admission** requirements and dates\n- **Entry test** syllabus and tips\n- **College information** across Pakistan\n- **Fee structure** and eligibility\n- **Interview & Medical** preparation\n\nWhat would you like to know about cadet colleges?";
+    } else if (lowerMsg.includes("admission") || lowerMsg.includes("apply") || lowerMsg.includes("application") || lowerMsg.includes("last date")) {
+      const colleges = await storage.getColleges();
+      const withDates = colleges.filter(c => c.lastApplyDate);
+      let dateInfo = "";
+      if (withDates.length > 0) {
+        dateInfo = "\n\n**Upcoming Deadlines:**\n" + withDates.map(c => `- ${c.name}: ${new Date(c.lastApplyDate!).toLocaleDateString("en-PK", { day: "numeric", month: "long", year: "numeric" })}`).join("\n");
+      }
+      reply = `**Cadet College Admissions**\n\nAdmissions typically open in January-March for most cadet colleges. Students in Class 7 and Class 8 can apply.\n\n**General Requirements:**\n- Age between 12-15 years (varies by college)\n- Good academic record\n- Pakistani nationality\n- Physically and medically fit${dateInfo}\n\nRegister on our portal to start your preparation today!`;
+    } else if (lowerMsg.includes("fee") || lowerMsg.includes("cost") || lowerMsg.includes("charges") || lowerMsg.includes("price")) {
+      reply = "**Fee Structure**\n\nCadet college fees vary by institution:\n\n- **Monthly fees** typically range from Rs. 15,000 to Rs. 50,000\n- **Admission fee** is usually one-time\n- **Security deposit** is refundable\n- Some colleges offer **scholarships** for merit students\n- **Armed forces children** may get fee concessions\n\nFor specific college fee details, visit our portal or contact the respective college directly.\n\nFor preparation packages, check our [Pricing](/pricing) page!";
+    } else if (lowerMsg.includes("eligibility") || lowerMsg.includes("age") || lowerMsg.includes("requirement") || lowerMsg.includes("who can apply")) {
+      reply = "**Eligibility Criteria**\n\n**Age:**\n- Class 7 entry: 11-13 years\n- Class 8 entry: 12-14 years\n- (Age limits may vary slightly by college)\n\n**Academic:**\n- Must have passed the previous class\n- Good grades in Mathematics, English, and Science\n\n**Other Requirements:**\n- Pakistani national or domicile holder\n- Physically fit (medical test required)\n- No serious medical conditions\n- Good moral character\n\nWould you like to know about a specific college?";
+    } else if (lowerMsg.includes("syllabus") || lowerMsg.includes("test pattern") || lowerMsg.includes("what to study") || lowerMsg.includes("paper pattern")) {
+      reply = "**Entry Test Syllabus**\n\nThe written test typically covers:\n\n1. **Mathematics** (30-40%)\n   - Arithmetic, Algebra, Geometry\n2. **English** (20-30%)\n   - Grammar, Vocabulary, Comprehension\n3. **Urdu** (10-15%)\n   - Grammar, Essay, Comprehension\n4. **General Knowledge / Islamiat** (15-20%)\n   - Pakistan Studies, Current Affairs, Islamic basics\n5. **Intelligence Test** (10-15%)\n   - Patterns, analogies, reasoning\n\n**Test Format:** Mostly MCQs with some subjective questions\n**Duration:** 2-3 hours\n\nRegister on our portal to practice subject-wise MCQs!";
+    } else if (lowerMsg.includes("interview") || lowerMsg.includes("viva")) {
+      reply = "**Interview Preparation**\n\nAfter passing the written test, selected candidates face an interview:\n\n**Common Questions:**\n- Tell me about yourself\n- Why do you want to join a cadet college?\n- Name the capitals of provinces\n- Current Prime Minister / President\n- Your favorite subject and why\n\n**Tips:**\n- Dress neatly in formal clothes\n- Maintain eye contact\n- Speak clearly and confidently\n- Know basic facts about Pakistan\n- Be honest in your answers\n\nOur portal has a dedicated Interview Prep section with 50+ practice questions!";
+    } else if (lowerMsg.includes("medical") || lowerMsg.includes("physical") || lowerMsg.includes("health")) {
+      reply = "**Medical & Physical Test**\n\nAfter the interview, candidates undergo a medical examination:\n\n**Medical Tests:**\n- Vision test (6/6 eyesight preferred)\n- Hearing test\n- Blood tests\n- Chest X-ray\n- General physical examination\n\n**Physical Standards:**\n- Height and weight appropriate for age\n- No flat feet or knock knees\n- No color blindness\n- Good dental health\n\n**Tips:**\n- Maintain regular exercise\n- Eat a balanced diet\n- Get enough sleep before the test\n- Carry all previous medical records\n\nCheck our Medical Prep section on the portal for detailed guidance!";
+    } else if (lowerMsg.includes("hasan abdal") || lowerMsg.includes("hasanabdal")) {
+      reply = "**Cadet College Hasan Abdal**\n\n- **Location:** Hasan Abdal, Punjab\n- **Established:** 1954\n- One of the **oldest and most prestigious** cadet colleges\n- Entry at **Class 8** level\n- Produces many top military officers\n- Beautiful campus near Taxila\n\nIt is considered the 'Eton of Pakistan' for its academic excellence and discipline.";
+    } else if (lowerMsg.includes("petaro")) {
+      reply = "**Cadet College Petaro**\n\n- **Location:** Petaro, Sindh\n- **Established:** 1957\n- Premier institution in **Sindh**\n- Known for excellent **academic record**\n- Beautiful campus with modern facilities\n- Produces many distinguished alumni";
+    } else if (lowerMsg.includes("kohat")) {
+      reply = "**Cadet College Kohat**\n\n- **Location:** Kohat, KPK\n- Leading cadet college in **Khyber Pakhtunkhwa**\n- Known for strong discipline and academics\n- Modern facilities and experienced faculty\n- Entry available at Class 7 and 8 levels";
+    } else if (lowerMsg.includes("college") || lowerMsg.includes("list") || lowerMsg.includes("how many")) {
+      const colleges = await storage.getColleges();
+      const provinces = await storage.getProvinces();
+      const provinceMap = new Map(provinces.map(p => [p.id, p.name]));
+      const grouped: Record<string, string[]> = {};
+      colleges.forEach(c => {
+        const pName = provinceMap.get(c.provinceId) || "Other";
+        if (!grouped[pName]) grouped[pName] = [];
+        grouped[pName].push(c.name);
+      });
+      const listing = Object.entries(grouped).map(([prov, cols]) => `**${prov}:**\n${cols.map(c => `  - ${c}`).join("\n")}`).join("\n\n");
+      reply = `**Cadet Colleges in Pakistan**\n\n${listing}\n\nVisit our homepage to explore colleges by province!`;
+    } else if (lowerMsg.includes("preparation") || lowerMsg.includes("prepare") || lowerMsg.includes("tips") || lowerMsg.includes("how to")) {
+      reply = "**Preparation Tips**\n\n1. **Start 3-6 months** before the exam\n2. **Daily routine:** Study at least 2-3 hours\n3. **Focus areas:** Math (most important), English, GK\n4. **Practice MCQs** daily — aim for 25+ questions\n5. **Read newspapers** for current affairs\n6. **Physical fitness** — exercise regularly\n7. **Mock tests** — take weekly practice tests\n8. **Group study** can be helpful\n\nOur portal offers:\n- AI Smart Tutor for personalized help\n- Subject-wise MCQ practice\n- Interview & Medical prep guides\n- Downloadable PDF practice papers\n\n[Register now](/register) to start your free trial!";
+    } else if (isCadetRelated) {
+      reply = `That's a great question about cadet colleges!\n\nI can help you with specific topics:\n- **Admissions** — dates, requirements, process\n- **Entry Test** — syllabus, pattern, tips\n- **Colleges** — list, details, locations\n- **Fees** — structure and scholarships\n- **Interview** — common questions, preparation\n- **Medical** — physical standards, tests\n\nPlease ask about any of these topics and I'll provide detailed information!`;
+    } else {
+      reply = `I appreciate your question, but I'm specifically designed to help with **cadet college** related queries only.\n\nI can assist with:\n- Admissions & eligibility\n- Entry test preparation\n- College information\n- Fee structures\n- Interview & medical preparation\n\nFor other information, please visit **[www.pakshaheens.com](https://www.pakshaheens.com)** or contact us on WhatsApp: **+923348480890**.\n\nIs there anything about cadet colleges I can help you with?`;
+    }
+
+    res.json({ reply });
+  });
+
   // Student routes
   app.get("/api/mcqs/:level", requireAuth, async (req, res) => {
     const data = await storage.getMcqs(req.params.level);

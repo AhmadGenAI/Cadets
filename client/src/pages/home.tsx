@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertBar } from "@/components/alert-bar";
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
+import { ChatbotWidget } from "@/components/chatbot-widget";
 import { GraduationCap, MapPin, Calendar, ChevronRight, Anchor, Plane, Swords, BookOpen, Users, Award } from "lucide-react";
 import type { Province, College } from "@shared/schema";
 import { motion } from "framer-motion";
@@ -277,6 +278,7 @@ export default function Home() {
       </section>
 
       <PublicFooter />
+      <ChatbotWidget />
     </div>
   );
 }
