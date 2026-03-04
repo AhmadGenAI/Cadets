@@ -186,8 +186,31 @@ export async function registerRoutes(
         dateInfo = "\n\n**Upcoming Deadlines:**\n" + withDates.map(c => `- ${c.name}: ${new Date(c.lastApplyDate!).toLocaleDateString("en-PK", { day: "numeric", month: "long", year: "numeric" })}`).join("\n");
       }
       reply = `**Cadet College Admissions**\n\nAdmissions typically open in January-March for most cadet colleges. Students in Class 7 and Class 8 can apply.\n\n**General Requirements:**\n- Age between 12-15 years (varies by college)\n- Good academic record\n- Pakistani nationality\n- Physically and medically fit${dateInfo}\n\nRegister on our portal to start your preparation today!`;
-    } else if (lowerMsg.includes("fee") || lowerMsg.includes("cost") || lowerMsg.includes("charges") || lowerMsg.includes("price")) {
-      reply = "**Fee Structure**\n\nCadet college fees vary by institution:\n\n- **Monthly fees** typically range from Rs. 15,000 to Rs. 50,000\n- **Admission fee** is usually one-time\n- **Security deposit** is refundable\n- Some colleges offer **scholarships** for merit students\n- **Armed forces children** may get fee concessions\n\nFor specific college fee details, visit our portal or contact the respective college directly.\n\nFor preparation packages, check our [Pricing](/pricing) page!";
+    } else if (lowerMsg.includes("fee") || lowerMsg.includes("cost") || lowerMsg.includes("charges") || lowerMsg.includes("price") || lowerMsg.includes("kitni") || lowerMsg.includes("kharcha")) {
+      const allColleges = await storage.getColleges();
+      const matchedCollege = allColleges.find(c => {
+        const cName = c.name.toLowerCase();
+        const cCity = (c.city || "").toLowerCase();
+        const nameWords = cName.replace(/cadet|college|military|school|pakistan|paf|pn/g, "").trim().split(/\s+/).filter(w => w.length > 2);
+        const nameMatch = nameWords.length > 0 && nameWords.some(w => lowerMsg.includes(w));
+        const cityMatch = cCity.length > 3 && lowerMsg.includes(cCity);
+        return nameMatch || cityMatch;
+      });
+
+      if (matchedCollege && matchedCollege.feeStructure) {
+        reply = `**${matchedCollege.name} — Fee Structure**\n\n${matchedCollege.feeStructure}`;
+        if (matchedCollege.applyLink) {
+          reply += `\n\n**Official Website:** [${matchedCollege.applyLink}](${matchedCollege.applyLink})`;
+        }
+        reply += "\n\n*Note: Fees may change. Always confirm from the official college website or contact the college directly.*";
+      } else {
+        const feeColleges = allColleges.filter(c => c.feeStructure);
+        const summaryLines = feeColleges.slice(0, 8).map(c => {
+          const short = c.feeStructure!.split(".").slice(0, 2).join(".") + ".";
+          return `- **${c.name}**: ${short}`;
+        });
+        reply = `**Cadet College Fee Structures**\n\nHere's a summary of fees for some colleges:\n\n${summaryLines.join("\n")}\n\n**Tips:**\n- Armed forces children usually get fee concessions\n- Some colleges offer merit-based scholarships\n- Government-subsidized colleges have lower fees\n\nAsk me about a specific college's fee — e.g. "fee of Cadet College Fateh Jang" — for detailed information!`;
+      }
     } else if (lowerMsg.includes("eligibility") || lowerMsg.includes("age") || lowerMsg.includes("requirement") || lowerMsg.includes("who can apply")) {
       reply = "**Eligibility Criteria**\n\n**Age:**\n- Class 7 entry: 11-13 years\n- Class 8 entry: 12-14 years\n- (Age limits may vary slightly by college)\n\n**Academic:**\n- Must have passed the previous class\n- Good grades in Mathematics, English, and Science\n\n**Other Requirements:**\n- Pakistani national or domicile holder\n- Physically fit (medical test required)\n- No serious medical conditions\n- Good moral character\n\nWould you like to know about a specific college?";
     } else if (lowerMsg.includes("syllabus") || lowerMsg.includes("test pattern") || lowerMsg.includes("what to study") || lowerMsg.includes("paper pattern")) {
@@ -197,11 +220,19 @@ export async function registerRoutes(
     } else if (lowerMsg.includes("medical") || lowerMsg.includes("physical") || lowerMsg.includes("health")) {
       reply = "**Medical & Physical Test**\n\nAfter the interview, candidates undergo a medical examination:\n\n**Medical Tests:**\n- Vision test (6/6 eyesight preferred)\n- Hearing test\n- Blood tests\n- Chest X-ray\n- General physical examination\n\n**Physical Standards:**\n- Height and weight appropriate for age\n- No flat feet or knock knees\n- No color blindness\n- Good dental health\n\n**Tips:**\n- Maintain regular exercise\n- Eat a balanced diet\n- Get enough sleep before the test\n- Carry all previous medical records\n\nCheck our Medical Prep section on the portal for detailed guidance!";
     } else if (lowerMsg.includes("hasan abdal") || lowerMsg.includes("hasanabdal")) {
+      const college = (await storage.getColleges()).find(c => c.name.toLowerCase().includes("hasan abdal"));
       reply = "**Cadet College Hasan Abdal**\n\n- **Location:** Hasan Abdal, Punjab\n- **Established:** 1954\n- One of the **oldest and most prestigious** cadet colleges\n- Entry at **Class 8** level\n- Produces many top military officers\n- Beautiful campus near Taxila\n\nIt is considered the 'Eton of Pakistan' for its academic excellence and discipline.";
+      if (college?.feeStructure) reply += `\n\n**Fee Structure:** ${college.feeStructure}`;
+      if (college?.applyLink) reply += `\n\n**Website:** [${college.applyLink}](${college.applyLink})`;
     } else if (lowerMsg.includes("petaro")) {
+      const college = (await storage.getColleges()).find(c => c.name.toLowerCase().includes("petaro"));
       reply = "**Cadet College Petaro**\n\n- **Location:** Petaro, Sindh\n- **Established:** 1957\n- Premier institution in **Sindh**\n- Known for excellent **academic record**\n- Beautiful campus with modern facilities\n- Produces many distinguished alumni";
+      if (college?.feeStructure) reply += `\n\n**Fee Structure:** ${college.feeStructure}`;
     } else if (lowerMsg.includes("kohat")) {
+      const college = (await storage.getColleges()).find(c => c.name.toLowerCase().includes("kohat"));
       reply = "**Cadet College Kohat**\n\n- **Location:** Kohat, KPK\n- Leading cadet college in **Khyber Pakhtunkhwa**\n- Known for strong discipline and academics\n- Modern facilities and experienced faculty\n- Entry available at Class 7 and 8 levels";
+      if (college?.feeStructure) reply += `\n\n**Fee Structure:** ${college.feeStructure}`;
+      if (college?.applyLink) reply += `\n\n**Website:** [${college.applyLink}](${college.applyLink})`;
     } else if (lowerMsg.includes("college") || lowerMsg.includes("list") || lowerMsg.includes("how many")) {
       const colleges = await storage.getColleges();
       const provinces = await storage.getProvinces();

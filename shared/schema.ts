@@ -41,6 +41,7 @@ export const colleges = pgTable("colleges", {
   lastApplyDate: date("last_apply_date"),
   imageUrl: text("image_url"),
   isFeatured: boolean("is_featured").notNull().default(false),
+  feeStructure: text("fee_structure"),
 });
 
 export const packages = pgTable("packages", {
