@@ -9,7 +9,7 @@ import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
 import {
   BookOpen, Brain, ClipboardList, Stethoscope, UserCircle,
-  GraduationCap, Calendar, LogOut, Shield
+  GraduationCap, Calendar, LogOut, Shield, FileDown
 } from "lucide-react";
 import type { College } from "@shared/schema";
 import { motion } from "framer-motion";
@@ -33,6 +33,7 @@ const dashboardItems = [
   { title: "MCQs & Quizzes", desc: "Practice questions by topic", icon: ClipboardList, href: "/portal/quizzes", color: "text-blue-500 dark:text-blue-400" },
   { title: "Interview Prep", desc: "Tips and mock questions", icon: BookOpen, href: "/portal/interview", color: "text-orange-500 dark:text-orange-400" },
   { title: "Medical Tips", desc: "Physical & medical exam guide", icon: Stethoscope, href: "/portal/medical", color: "text-red-500 dark:text-red-400" },
+  { title: "PDF Papers", desc: "Download MCQ practice papers", icon: FileDown, href: "/portal/pdf", color: "text-emerald-500 dark:text-emerald-400" },
   { title: "My Profile", desc: "Manage your account", icon: UserCircle, href: "/portal/profile", color: "text-purple-500 dark:text-purple-400" },
 ];
 

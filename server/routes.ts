@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import session from "express-session";
 import { storage } from "./storage";
 import { hashPassword, comparePassword } from "./auth";
+import { generateMcqPdf } from "./pdf";
 import { registerSchema, loginSchema } from "@shared/schema";
 
 declare module "express-session" {
@@ -167,6 +168,45 @@ export async function registerRoutes(
     }
 
     res.json({ reply });
+  });
+
+  // PDF generation
+  app.post("/api/pdf/generate", requireAuth, async (req, res) => {
+    try {
+      const { subject } = req.body;
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) return res.status(401).json({ message: "User not found" });
+
+      if (subject && typeof subject !== "string") {
+        return res.status(400).json({ message: "Invalid subject" });
+      }
+
+      const mcqLevel = user.level || "middle";
+      const subjectFilter = subject && subject !== "all" ? subject : undefined;
+      const allMcqs = await storage.getMcqs(mcqLevel, subjectFilter);
+
+      if (allMcqs.length === 0) {
+        return res.status(404).json({ message: "No MCQs found for the selected criteria" });
+      }
+
+      const MAX_QUESTIONS = 25;
+      const numQuestions = Math.min(MAX_QUESTIONS, allMcqs.length);
+      const shuffled = [...allMcqs].sort(() => Math.random() - 0.5);
+      const selected = shuffled.slice(0, numQuestions);
+
+      const title = subject
+        ? `${subject} - MCQ Practice (${mcqLevel.charAt(0).toUpperCase() + mcqLevel.slice(1)} Level)`
+        : `MCQ Practice Paper (${mcqLevel.charAt(0).toUpperCase() + mcqLevel.slice(1)} Level)`;
+
+      const pdfBuffer = await generateMcqPdf(selected, title, user.name || undefined);
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename=shaheen-mcqs-${Date.now()}.pdf`);
+      res.send(pdfBuffer);
+    } catch (e: any) {
+      console.error("PDF generation error:", e);
+      res.status(500).json({ message: "Failed to generate PDF" });
+    }
   });
 
   // Admin routes

@@ -20,6 +20,7 @@ import PortalQuizzes from "@/pages/portal-quizzes";
 import PortalInterview from "@/pages/portal-interview";
 import PortalMedical from "@/pages/portal-medical";
 import PortalProfile from "@/pages/portal-profile";
+import PortalPdf from "@/pages/portal-pdf";
 import Admin from "@/pages/admin";
 
 function Router() {
@@ -39,6 +40,7 @@ function Router() {
       <Route path="/portal/interview" component={PortalInterview} />
       <Route path="/portal/medical" component={PortalMedical} />
       <Route path="/portal/profile" component={PortalProfile} />
+      <Route path="/portal/pdf" component={PortalPdf} />
       <Route path="/admin" component={Admin} />
       <Route component={NotFound} />
     </Switch>

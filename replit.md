@@ -12,7 +12,7 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 ## Key Features
 - Public landing page with provinces, colleges, and hero section
 - Student registration/login via mobile number
-- Student portal: AI tutor, MCQ quizzes, interview prep, medical tips, profile
+- Student portal: AI tutor, MCQ quizzes, interview prep, medical tips, PDF paper generator, profile
 - Admin panel: manage users, provinces, colleges, packages, pages, blog posts
 - Trial system with configurable trial days
 - CSV export for user data
@@ -38,6 +38,7 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 - `server/storage.ts` - Data access layer
 - `server/routes.ts` - API routes
 - `server/auth.ts` - Password hashing utilities
+- `server/pdf.ts` - PDF generation with watermark (pdfkit)
 - `server/seed.ts` - Seed data
 - `client/src/pages/` - All page components
 - `client/src/components/` - Shared components
