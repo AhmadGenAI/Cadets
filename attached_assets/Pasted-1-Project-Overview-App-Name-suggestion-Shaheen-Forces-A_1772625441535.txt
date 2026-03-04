@@ -1,0 +1,818 @@
+1) Project Overview
+
+App Name (suggestion): Shaheen Forces Academy – Cadet College Prep Portal
+Goal: Students ko cadet colleges ke admission initial tests ki preparation, last date alerts, smart AI tutor, quizzes/tests, interview + medical tips, aur admin-controlled content/ads/syllabus ke sath provide karna.
+
+Core Modules
+
+Public Website (Landing + Blog + Pricing + Services + Static Pages)
+
+Student Portal (prep dashboard + tutor + tests + schedule + reminders)
+
+Admin Panel (colleges, provinces, syllabus, ads, pages, users, exports, settings)
+
+2) User Roles & Permissions
+A) Student
+
+Mobile number se login/register
+
+Cadet college selection (login/register ke waqt)
+
+Language preference (class start se pehle)
+
+Start Preparation → tutor class
+
+MCQs / Quiz / Mock Test
+
+Interview prep + Medical tips
+
+PDF request (25 MCQs) watermark ke sath
+
+Schedule set (daily time) + reminders (SMS/Email/WhatsApp option later)
+
+Package status: trial/active/expired
+
+B) Admin
+
+Provinces (name, picture) editable
+
+Cadet Colleges (list, apply last date, syllabus mapping, images)
+
+Landing page hero video upload/change
+
+Landing audio upload + “auto play on/off”
+
+Header banner ad slot + landing center ad slot + pre-login ad + 30-min interval ad
+
+Pages manager: About/Terms/Privacy/Disclaimer/Sitemap + add/edit/delete new pages
+
+Blog posts management
+
+Pricing packages edit
+
+Users management:
+
+activate/deactivate
+
+trial days set
+
+package expiry date set
+
+status auto: Active/Expired
+
+1 year data retention
+
+export to Excel
+
+PDF watermark image change
+
+Header/footer text edit (footer: www.pakshaheens.com
+ + WhatsApp +923348480890 fixed by default but editable)
+
+Syllabus define (class-wise + college-wise + level wise: primary/middle/matric/intermediate)
+
+3) Public Website Requirements (Landing)
+3.1 Header
+
+Logo + Menu: Home, Pricing, Services, Blog, Login/Register
+
+Google Banner Ad Slot (admin se ad code paste/update)
+
+Sticky header optional
+
+3.2 Top Alert Bar (Important)
+
+“Last date to apply” + College name (running / marquee style)
+
+Admin can set per college last date
+
+Display logic: user selected college or “featured” college
+
+3.3 Hero Section
+
+Editable hero title/subtitle/CTA
+
+Video Upload (admin upload/link)
+
+Optional overlay CTA: “Start Preparation / Enroll”
+
+3.4 Provinces Section
+
+Tamam provinces ke name + picture cards
+
+Admin se edit (name, image, ordering)
+
+Province click → page showing cadet colleges list (filtered)
+
+3.5 Cadet Colleges Listing
+
+Each college card:
+
+name, city, province, last date
+
+“Enroll” button (admin can change text/visibility/link)
+
+College detail page optional:
+
+syllabus outline + apply link + last date
+
+3.6 Army / Navy / PAF Boxes (3 in a row)
+
+3 editable boxes:
+
+title + image + link
+
+Admin se full control
+
+3.7 Landing Center Ad Slot
+
+Center of page ad banner (admin code/image)
+
+3.8 Footer
+
+Links: About, Terms, Privacy, Disclaimer, Sitemap + any official pages (admin manage)
+
+Must show:
+
+www.pakshaheens.com
+
+WhatsApp: +923348480890
+
+4) Authentication & Onboarding
+4.1 Register Flow
+
+Fields:
+
+Mobile Number (unique, acts as username)
+
+Name (optional but recommended)
+
+Email (optional, for reminders)
+
+Password (or OTP later)
+
+Choose Cadet College
+
+Choose Study Level (primary/middle/matric/intermediate)
+
+After successful register:
+
+Message: “Registration completed successfully”
+
+Message: “Free trial: X days”
+
+Message: “Duration extend karne ke liye WhatsApp +923348480890”
+
+4.2 Login Flow
+
+Mobile + password
+
+After login:
+
+Warm welcome (har dafa different) e.g. 50 variations stored
+
+Show package status: trial/active/expired + expiry date
+
+Button: Start Preparation
+
+5) Student Portal (After Login)
+5.1 Dashboard
+
+Welcome message (random)
+
+Selected College + Last date info
+
+Start Preparation
+
+MCQs / Quiz / Mock Tests
+
+Interview Prep
+
+Medical Tips
+
+PDF Generator (25 MCQs)
+
+Schedule/Reminders
+
+Profile + Language preferences
+
+5.2 Smart Tutor (AI Agent)
+
+Must do:
+
+Start class in chat UI (text)
+
+Optional voice output (female soft educational voice)
+
+Before class:
+
+ask preferred language: Urdu/English/Roman Urdu (and/or Pashto etc. later)
+
+Use syllabus:
+
+college-specific + level-specific
+
+topics and daily plan
+
+Generates:
+
+MCQs
+
+quizzes
+
+mock tests (timed)
+
+interview Q/A
+
+medical tips checklist
+
+30-minute logic:
+
+At least 30 min study session allowed
+
+After 30 minutes:
+
+show ad (interval ad)
+
+agent suggests short break: “Thora relax kar lein…”
+
+5.3 Ads in Student Journey
+
+Pre-login ad: user portal entry se pehle 1 ad
+
+Header ad always
+
+After 30 minutes in session: interval ad (repeatable)
+
+All ad slots admin-configurable:
+
+image/video/html snippet
+
+enable/disable
+
+frequency rules (basic)
+
+5.4 Schedule & Reminders
+
+Student chooses:
+
+daily time (e.g. 7:30 PM)
+
+reminder channel: Email (MVP), SMS (later), WhatsApp (later)
+
+System sends reminder at selected time daily
+
+Store timezone (Asia/Karachi)
+
+6) Admin Panel (Detailed)
+6.1 Settings
+
+Site name/logo
+
+Header ad code
+
+Landing center ad code
+
+Pre-login ad asset/code
+
+Interval ad asset/code + frequency (default 30 mins)
+
+Landing hero video upload/link
+
+Landing audio upload + auto-play toggle
+
+Footer:
+
+weblink + whatsapp number + custom text blocks
+
+Fonts:
+
+Urdu font upload (Jameel Noori Nastaleeq Regular)
+
+PDF watermark image upload
+
+6.2 Content Management
+
+Provinces CRUD (name, image, order)
+
+Colleges CRUD:
+
+name, province, city
+
+apply link
+
+last date to apply
+
+college image/logo
+
+syllabus mapping
+
+Syllabus Manager:
+
+Global syllabus by level/class
+
+College-specific overrides
+
+Topics structure: Subject → Chapters → Topics → difficulty
+
+Pages Manager:
+
+create/edit/delete pages
+
+slug + SEO meta
+
+Blog Manager:
+
+posts, categories, thumbnails
+
+6.3 Users & Packages
+
+Users list with:
+
+mobile, name, selected college, level
+
+trial start date, trial end date
+
+package type, expiry date
+
+status auto: Active (trial/subscribed) / Expired
+
+admin activation toggle
+
+Export:
+
+Excel export (filtered by date/college/status)
+
+Data retention:
+
+users’ activity logs + results kept 1 year, then archive/delete job
+
+7) Pricing & Packages (Editable)
+
+Default packages:
+
+Free Trial: 3 days (editable)
+
+Standard: Rs 500 / month
+
+6 Months: Rs 2000 / 6 months
+
+Pricing page admin-editable:
+
+names, price, duration, features
+
+CTA links
+
+Payment gateway:
+
+Not in MVP, but codebase ready:
+
+“Pay Now” placeholder
+
+future integration: JazzCash/EasyPaisa/Stripe etc.
+
+8) PDF Generation Requirements
+
+When student requests PDF:
+
+Generate 25 MCQs (selected subject/topic/level/college syllabus)
+
+Add watermark image: Shaheen Forces Academy monogram
+
+Footer in PDF:
+
+www.pakshaheens.com
+
+WhatsApp +923348480890
+
+Urdu questions supported (font embedded: Jameel Noori Nastaleeq)
+
+Math equations supported with LaTeX rendering
+
+Web view: KaTeX/MathJax
+
+PDF: latex-to-svg or KaTeX render → embed in PDF
+
+9) Tech Stack (Replit-Friendly Recommendation)
+Option A (Recommended MVP): Next.js + PostgreSQL
+
+Frontend: Next.js (App Router) + Tailwind CSS
+
+Backend: Next.js API routes (or separate Express)
+
+DB: PostgreSQL (Neon/Supabase)
+
+Auth: NextAuth/custom JWT + mobile/password
+
+Admin UI: same app (/admin) role-protected
+
+PDF: server-side pdfkit / puppeteer / react-pdf (choose 1)
+
+LaTeX: KaTeX (fast)
+
+Voice: Web Speech API (MVP) + later cloud TTS (female voice)
+
+Option B: MERN
+
+React + Node/Express + MongoDB
+
+Note: Urdu Nastaleeq font + PDF rendering me PostgreSQL/Next stack manageable hai.
+
+10) Database Schema (Core Tables)
+users
+
+id (uuid)
+
+mobile (unique)
+
+password_hash
+
+name
+
+email (nullable)
+
+role (student/admin)
+
+selected_college_id
+
+level (primary/middle/matric/intermediate)
+
+preferred_language (nullable)
+
+is_active (bool)
+
+created_at
+
+colleges
+
+id, name, province_id, city
+
+apply_link
+
+last_apply_date (date)
+
+image_url
+
+is_featured
+
+provinces
+
+id, name, image_url, sort_order
+
+packages
+
+id, name, price, duration_days, features_json, is_active
+
+subscriptions
+
+id, user_id
+
+package_id
+
+start_date, end_date
+
+status (trial/active/expired)
+
+updated_by_admin_id
+
+syllabus
+
+id, level, subject, chapter, topic
+
+difficulty
+
+college_id (nullable for global)
+
+sort_order
+
+mcq_bank
+
+id, college_id (nullable), level
+
+subject, topic
+
+question_text
+
+options_json
+
+correct_option
+
+explanation
+
+language
+
+quiz_attempts / test_results
+
+id, user_id, type (quiz/mock)
+
+started_at, ended_at
+
+score, details_json
+
+ads
+
+id, placement (header/center/prelogin/interval)
+
+type (image/video/html)
+
+content_url_or_code
+
+is_enabled
+
+frequency_minutes (for interval)
+
+created_at
+
+pages
+
+id, title, slug, content_html/markdown, is_published
+
+blog_posts
+
+id, title, slug, content, thumbnail_url, published_at
+
+reminders
+
+id, user_id
+
+time_of_day (HH:MM)
+
+channel (email/sms/whatsapp)
+
+enabled
+
+settings
+
+key, value (json)
+
+11) Key Business Logic (Rules)
+
+Status calculation
+
+if today <= end_date and is_active true → Active
+
+else Expired
+
+Trial
+
+register → trial start today, end = today + trial_days
+
+Ads
+
+prelogin: show once per session
+
+interval: show after 30 mins of active prep time
+
+Welcome message
+
+random from list, daily unique feel
+
+Language
+
+if student selects Urdu → tutor replies in Urdu
+
+if English → English
+
+Syllabus
+
+college-specific overrides global syllabus
+
+12) UI Pages List (Minimum)
+Public
+
+/
+
+/pricing
+
+/services
+
+/blog
+
+/blog/[slug]
+
+/login
+
+/register
+
+/page/[slug] (terms/privacy/etc.)
+
+Student
+
+/portal (dashboard)
+
+/portal/prep
+
+/portal/quizzes
+
+/portal/tests
+
+/portal/interview
+
+/portal/medical
+
+/portal/pdf
+
+/portal/schedule
+
+/portal/profile
+
+Admin
+
+/admin
+
+/admin/provinces
+
+/admin/colleges
+
+/admin/syllabus
+
+/admin/ads
+
+/admin/pages
+
+/admin/blog
+
+/admin/users
+
+/admin/packages
+
+/admin/settings
+
+/admin/exports
+
+13) AI Tutor Integration (Implementation Notes)
+
+MVP approach
+
+“Tutor Service” endpoint:
+
+input: user_id, college_id, level, subject/topic, language
+
+output: lesson text + MCQs + quiz plan
+
+Keep “tutor persona” consistent (female soft educator)
+
+Add voice toggle:
+
+if enabled → browser TTS speak the response
+
+Safety:
+
+do not allow irrelevant/unsafe content
+
+Keep syllabus grounded:
+
+tutor must follow admin syllabus topics and difficulty
+
+14) Project Folder Structure (Replit)
+
+Example (Next.js):
+
+/app
+  /(public)
+    page.tsx
+    pricing/page.tsx
+    services/page.tsx
+    blog/page.tsx
+    blog/[slug]/page.tsx
+    login/page.tsx
+    register/page.tsx
+    page/[slug]/page.tsx
+
+  /(portal)
+    portal/page.tsx
+    portal/prep/page.tsx
+    portal/quizzes/page.tsx
+    portal/tests/page.tsx
+    portal/interview/page.tsx
+    portal/medical/page.tsx
+    portal/pdf/page.tsx
+    portal/schedule/page.tsx
+    portal/profile/page.tsx
+
+  /(admin)
+    admin/page.tsx
+    admin/users/page.tsx
+    admin/colleges/page.tsx
+    admin/provinces/page.tsx
+    admin/syllabus/page.tsx
+    admin/ads/page.tsx
+    admin/pages/page.tsx
+    admin/blog/page.tsx
+    admin/packages/page.tsx
+    admin/settings/page.tsx
+    admin/exports/page.tsx
+
+/lib
+  db.ts
+  auth.ts
+  tutor.ts
+  pdf.ts
+  ads.ts
+  reminders.ts
+  settings.ts
+
+/components
+  Header.tsx
+  Footer.tsx
+  HeroVideo.tsx
+  AlertBar.tsx
+  ProvinceGrid.tsx
+  CollegeCard.tsx
+  AdSlot.tsx
+  TutorChat.tsx
+
+/prisma (if using Prisma)
+  schema.prisma
+
+/public
+  fonts/JameelNooriNastaleeq.woff2
+  images/
+  audio/
+15) Non-Functional Requirements
+
+Mobile responsive (first priority)
+
+Fast loading
+
+Secure auth (hash passwords, rate limit login)
+
+Admin routes protected
+
+Logs & analytics basic
+
+Backups for DB
+
+SEO for public pages
+
+16) MVP Delivery Plan (Developer ke liye)
+
+Phase 1 (MVP)
+
+Landing + provinces + colleges list + top alert + hero video + audio toggle
+
+Login/Register via mobile
+
+Student portal basic dashboard
+
+Admin: provinces/colleges/ads/settings/pages/pricing
+
+Trial system + package status
+
+Tutor text chat (syllabus grounded)
+
+Simple MCQ/Quiz
+
+Excel export users list
+
+Phase 2
+
+Voice tutor (female voice)
+
+Reminders via email
+
+Interval ads timer
+
+PDF generation with watermark + Urdu font + LaTeX
+
+Blog system complete
+
+Phase 3
+
+Payment gateway integration
+
+WhatsApp/SMS reminders
+
+Advanced analytics, question bank expansion
+
+17) Fixed Messages / Copy (Required Text)
+
+Registration success message must include:
+
+“Registration completed successfully”
+
+“Free trial: X days”
+
+“Duration extend karne ke liye WhatsApp +923348480890”
+
+Footer must include:
+
+www.pakshaheens.com
+
+WhatsApp +923348480890
+
+18) Assets You Will Provide to Developer
+
+Jameel Noori Nastaleeq Regular font file (woff/woff2 best)
+
+Watermark monogram image (png transparent)
+
+Hero video file or URL
+
+Landing audio file (mp3)
+
+Province pictures
+
+College pictures/logos
+
+Google Ad code snippet(s)
