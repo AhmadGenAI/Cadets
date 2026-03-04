@@ -91,6 +91,16 @@ export const blogPosts = pgTable("blog_posts", {
   isPublished: boolean("is_published").notNull().default(false),
 });
 
+export const assessmentQuestions = pgTable("assessment_questions", {
+  id: serial("id").primaryKey(),
+  type: varchar("type", { length: 30 }).notNull(),
+  trait: varchar("trait", { length: 50 }),
+  questionText: text("question_text").notNull(),
+  optionsJson: jsonb("options_json"),
+  correctAnswer: varchar("correct_answer", { length: 200 }),
+  subject: varchar("subject", { length: 50 }),
+});
+
 export const settings = pgTable("settings", {
   key: varchar("key", { length: 100 }).primaryKey(),
   value: jsonb("value"),
@@ -104,6 +114,7 @@ export const insertSyllabusSchema = createInsertSchema(syllabus).omit({ id: true
 export const insertMcqSchema = createInsertSchema(mcqBank).omit({ id: true });
 export const insertPageSchema = createInsertSchema(pages).omit({ id: true });
 export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({ id: true });
+export const insertAssessmentQuestionSchema = createInsertSchema(assessmentQuestions).omit({ id: true });
 
 export const registerSchema = z.object({
   mobile: z.string().min(10, "Mobile number is required"),
@@ -135,4 +146,6 @@ export type Page = typeof pages.$inferSelect;
 export type InsertPage = z.infer<typeof insertPageSchema>;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+export type AssessmentQuestion = typeof assessmentQuestions.$inferSelect;
+export type InsertAssessmentQuestion = z.infer<typeof insertAssessmentQuestionSchema>;
 export type Setting = typeof settings.$inferSelect;

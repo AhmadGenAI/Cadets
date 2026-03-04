@@ -4,6 +4,9 @@ import { db } from "./db";
 import { users, provinces, colleges, packages, pages, blogPosts, mcqBank, settings } from "@shared/schema";
 
 export async function seedDatabase() {
+  const { seedAssessmentQuestions } = await import("./assessment-seed");
+  await seedAssessmentQuestions();
+
   const existingProvinces = await storage.getProvinces();
   if (existingProvinces.length > 0) return;
 

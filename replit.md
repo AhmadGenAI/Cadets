@@ -10,10 +10,13 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 - **Auth**: Custom session-based auth with scrypt password hashing
 
 ## Key Features
-- Public landing page with provinces, colleges, and hero section
+- Public landing page with provinces, colleges, hero section, and free assessment CTAs
 - Student registration/login via mobile number
 - Student portal: AI tutor, MCQ quizzes, interview prep, medical tips, PDF paper generator, profile
-- Admin panel: manage users, provinces, colleges, packages, pages, blog posts
+- Free Assessment Tools (public, no login required):
+  - Personality Assessment: 14-trait Likert scale evaluation
+  - Academic Assessment: 5-subject timed MCQ test (Intelligence, English, Science, Math, Urdu)
+- Admin panel: manage users, provinces, colleges, packages, pages, blog posts, assessment question bank
 - Trial system with configurable trial days
 - CSV export for user data
 
@@ -26,6 +29,7 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 - `mcq_bank` - Multiple choice questions for practice
 - `pages` - Static content pages (about, terms, privacy)
 - `blog_posts` - Blog articles
+- `assessment_questions` - Personality and academic assessment questions (316 seeded)
 - `settings` - Key-value site settings
 
 ## Admin Credentials (Dev)

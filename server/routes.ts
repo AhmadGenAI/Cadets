@@ -402,6 +402,63 @@ export async function registerRoutes(
     res.json({ ok: true });
   });
 
+  app.get("/api/assessment/personality", async (_req, res) => {
+    const questions = await storage.getAssessmentQuestions("personality");
+    const shuffled = questions.sort(() => Math.random() - 0.5);
+    res.json(shuffled);
+  });
+
+  app.get("/api/assessment/academic/:subject", async (req, res) => {
+    const { subject } = req.params;
+    const valid = ["intelligence", "english", "science", "math", "urdu"];
+    if (!valid.includes(subject)) return res.status(400).json({ message: "Invalid subject" });
+    const questions = await storage.getAssessmentQuestions("academic", subject);
+    const shuffled = questions.sort(() => Math.random() - 0.5).slice(0, 25);
+    res.json(shuffled);
+  });
+
+  app.get("/api/admin/assessment", requireAdmin, async (_req, res) => {
+    const questions = await storage.getAllAssessmentQuestions();
+    res.json(questions);
+  });
+
+  app.post("/api/admin/assessment", requireAdmin, async (req, res) => {
+    const { type, questionText, subject, trait, optionsJson, correctAnswer } = req.body;
+    if (!type || !questionText) return res.status(400).json({ message: "type and questionText are required" });
+    if (type === "personality" && !trait) return res.status(400).json({ message: "trait is required for personality questions" });
+    if (type === "academic") {
+      if (!subject) return res.status(400).json({ message: "subject is required for academic questions" });
+      if (!optionsJson || !optionsJson.A || !optionsJson.B || !optionsJson.C || !optionsJson.D) return res.status(400).json({ message: "All four options (A,B,C,D) are required" });
+      if (!["A","B","C","D"].includes(correctAnswer)) return res.status(400).json({ message: "correctAnswer must be A, B, C, or D" });
+    }
+    const question = await storage.createAssessmentQuestion(req.body);
+    res.json(question);
+  });
+
+  app.patch("/api/admin/assessment/:id", requireAdmin, async (req, res) => {
+    const { type, questionText } = req.body;
+    if (type && !questionText && !req.body.questionText) return res.status(400).json({ message: "questionText is required" });
+    const question = await storage.updateAssessmentQuestion(parseInt(req.params.id), req.body);
+    if (!question) return res.status(404).json({ message: "Not found" });
+    res.json(question);
+  });
+
+  app.delete("/api/admin/assessment/:id", requireAdmin, async (req, res) => {
+    await storage.deleteAssessmentQuestion(parseInt(req.params.id));
+    res.json({ ok: true });
+  });
+
+  app.post("/api/admin/assessment/bulk", requireAdmin, async (req, res) => {
+    const { questions } = req.body;
+    if (!Array.isArray(questions)) return res.status(400).json({ message: "Expected array of questions" });
+    let count = 0;
+    for (const q of questions) {
+      await storage.createAssessmentQuestion(q);
+      count++;
+    }
+    res.json({ ok: true, imported: count });
+  });
+
   // Admin settings
   app.get("/api/admin/settings", requireAdmin, async (_req, res) => {
     const siteName = await storage.getSetting("site_name");

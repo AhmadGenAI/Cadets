@@ -25,6 +25,8 @@ const PortalInterview = lazy(() => import("@/pages/portal-interview"));
 const PortalMedical = lazy(() => import("@/pages/portal-medical"));
 const PortalProfile = lazy(() => import("@/pages/portal-profile"));
 const PortalPdf = lazy(() => import("@/pages/portal-pdf"));
+const AssessmentPersonality = lazy(() => import("@/pages/assessment-personality"));
+const AssessmentAcademic = lazy(() => import("@/pages/assessment-academic"));
 const AdminLogin = lazy(() => import("@/pages/admin-login"));
 const Admin = lazy(() => import("@/pages/admin"));
 
@@ -53,6 +55,8 @@ function Router() {
         <Route path="/portal/medical" component={PortalMedical} />
         <Route path="/portal/profile" component={PortalProfile} />
         <Route path="/portal/pdf" component={PortalPdf} />
+        <Route path="/assessment/personality" component={AssessmentPersonality} />
+        <Route path="/assessment/academic" component={AssessmentAcademic} />
         <Route path="/admin-login" component={AdminLogin} />
         <Route path="/admin" component={Admin} />
         <Route component={NotFound} />

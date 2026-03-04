@@ -18,9 +18,9 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Shield, Users, MapPin, GraduationCap, Package, FileText, Settings,
-  Plus, Pencil, Trash2, LogOut, LayoutDashboard, Download, Smartphone
+  Plus, Pencil, Trash2, LogOut, LayoutDashboard, Download, Smartphone, ClipboardList, Upload
 } from "lucide-react";
-import type { User, Province, College, Package as PkgType, Page as PageType, BlogPost } from "@shared/schema";
+import type { User, Province, College, Package as PkgType, Page as PageType, BlogPost, AssessmentQuestion } from "@shared/schema";
 
 export default function Admin() {
   const { user, logout, isLoading } = useAuth();
@@ -68,6 +68,7 @@ export default function Admin() {
               <TabsTrigger value="packages" data-testid="tab-packages"><Package className="w-4 h-4 mr-1" /> Packages</TabsTrigger>
               <TabsTrigger value="pages" data-testid="tab-pages"><FileText className="w-4 h-4 mr-1" /> Pages</TabsTrigger>
               <TabsTrigger value="blog" data-testid="tab-blog"><FileText className="w-4 h-4 mr-1" /> Blog</TabsTrigger>
+              <TabsTrigger value="assessment" data-testid="tab-assessment"><ClipboardList className="w-4 h-4 mr-1" /> Assessment</TabsTrigger>
               <TabsTrigger value="settings" data-testid="tab-settings"><Settings className="w-4 h-4 mr-1" /> Settings</TabsTrigger>
             </TabsList>
           </ScrollArea>
@@ -79,6 +80,7 @@ export default function Admin() {
           <TabsContent value="packages"><PackagesTab /></TabsContent>
           <TabsContent value="pages"><PagesTab /></TabsContent>
           <TabsContent value="blog"><BlogTab /></TabsContent>
+          <TabsContent value="assessment"><AssessmentTab /></TabsContent>
           <TabsContent value="settings"><SettingsTab /></TabsContent>
         </Tabs>
       </div>
@@ -673,6 +675,283 @@ function SettingsTab() {
           {mutation.isPending ? "Saving..." : "Save Settings"}
         </Button>
       </Card>
+    </div>
+  );
+}
+
+function AssessmentTab() {
+  const { data: questions, isLoading } = useQuery<AssessmentQuestion[]>({ queryKey: ["/api/admin/assessment"] });
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState("all");
+  const [form, setForm] = useState({ type: "academic", subject: "english", trait: "", questionText: "", optionsJson: { A: "", B: "", C: "", D: "" }, correctAnswer: "A" });
+  const [editId, setEditId] = useState<number | null>(null);
+  const [csvUploading, setCsvUploading] = useState(false);
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      const data: any = {
+        type: form.type,
+        questionText: form.questionText,
+        subject: form.type === "academic" ? form.subject : null,
+        trait: form.type === "personality" ? form.trait : null,
+        optionsJson: form.type === "academic" ? form.optionsJson : null,
+        correctAnswer: form.type === "academic" ? form.correctAnswer : null,
+      };
+      if (editId) {
+        await apiRequest("PATCH", `/api/admin/assessment/${editId}`, data);
+      } else {
+        await apiRequest("POST", "/api/admin/assessment", data);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/assessment"] });
+      toast({ title: editId ? "Question updated" : "Question added" });
+      setOpen(false);
+      setEditId(null);
+      setForm({ type: "academic", subject: "english", trait: "", questionText: "", optionsJson: { A: "", B: "", C: "", D: "" }, correctAnswer: "A" });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => { await apiRequest("DELETE", `/api/admin/assessment/${id}`); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/assessment"] });
+      toast({ title: "Question deleted" });
+    },
+  });
+
+  const handleEdit = (q: AssessmentQuestion) => {
+    setEditId(q.id);
+    setForm({
+      type: q.type,
+      subject: q.subject || "english",
+      trait: q.trait || "",
+      questionText: q.questionText,
+      optionsJson: (q.optionsJson as any) || { A: "", B: "", C: "", D: "" },
+      correctAnswer: q.correctAnswer || "A",
+    });
+    setOpen(true);
+  };
+
+  const handleCsvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCsvUploading(true);
+    try {
+      const text = await file.text();
+      const lines = text.split("\n").filter(l => l.trim());
+      const header = lines[0].toLowerCase();
+      const hasHeader = header.includes("question") || header.includes("subject");
+      const dataLines = hasHeader ? lines.slice(1) : lines;
+      const questions: any[] = [];
+      for (const line of dataLines) {
+        const parts = line.split(",").map(s => s.trim().replace(/^"|"$/g, ""));
+        if (parts.length >= 7) {
+          questions.push({
+            type: "academic",
+            subject: parts[0].toLowerCase(),
+            questionText: parts[1],
+            optionsJson: { A: parts[2], B: parts[3], C: parts[4], D: parts[5] },
+            correctAnswer: parts[6].toUpperCase(),
+            trait: null,
+          });
+        }
+      }
+      if (questions.length === 0) {
+        toast({ title: "No valid questions found", description: "CSV format: subject,question,optionA,optionB,optionC,optionD,correctAnswer", variant: "destructive" });
+        setCsvUploading(false);
+        return;
+      }
+      await apiRequest("POST", "/api/admin/assessment/bulk", { questions });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/assessment"] });
+      toast({ title: `Imported ${questions.length} questions` });
+    } catch (err: any) {
+      toast({ title: "Import failed", description: err.message, variant: "destructive" });
+    }
+    setCsvUploading(false);
+    e.target.value = "";
+  };
+
+  const filtered = questions?.filter(q => {
+    if (filter === "all") return true;
+    if (filter === "personality") return q.type === "personality";
+    return q.type === "academic" && q.subject === filter;
+  }) ?? [];
+
+  const counts: Record<string, number> = {};
+  questions?.forEach(q => {
+    const key = q.type === "personality" ? "personality" : q.subject || "other";
+    counts[key] = (counts[key] || 0) + 1;
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-bold">Assessment Question Bank</h2>
+        <div className="flex gap-2">
+          <label className="cursor-pointer">
+            <input type="file" accept=".csv,.txt" onChange={handleCsvUpload} className="hidden" data-testid="input-csv-upload" />
+            <Button variant="outline" size="sm" asChild disabled={csvUploading}>
+              <span><Upload className="w-4 h-4 mr-1" /> {csvUploading ? "Importing..." : "Import CSV"}</span>
+            </Button>
+          </label>
+          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditId(null); setForm({ type: "academic", subject: "english", trait: "", questionText: "", optionsJson: { A: "", B: "", C: "", D: "" }, correctAnswer: "A" }); } }}>
+            <DialogTrigger asChild>
+              <Button size="sm" data-testid="button-add-question"><Plus className="w-4 h-4 mr-1" /> Add Question</Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+              <DialogHeader><DialogTitle>{editId ? "Edit Question" : "Add Question"}</DialogTitle></DialogHeader>
+              <div className="space-y-3">
+                <div>
+                  <Label>Type</Label>
+                  <Select value={form.type} onValueChange={v => setForm(f => ({ ...f, type: v }))}>
+                    <SelectTrigger data-testid="select-q-type"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="academic">Academic (MCQ)</SelectItem>
+                      <SelectItem value="personality">Personality (Likert)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {form.type === "academic" && (
+                  <div>
+                    <Label>Subject</Label>
+                    <Select value={form.subject} onValueChange={v => setForm(f => ({ ...f, subject: v }))}>
+                      <SelectTrigger data-testid="select-q-subject"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="intelligence">Intelligence</SelectItem>
+                        <SelectItem value="english">English</SelectItem>
+                        <SelectItem value="science">General Science</SelectItem>
+                        <SelectItem value="math">Mathematics</SelectItem>
+                        <SelectItem value="urdu">Urdu</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                {form.type === "personality" && (
+                  <div>
+                    <Label>Personality Trait</Label>
+                    <Select value={form.trait} onValueChange={v => setForm(f => ({ ...f, trait: v }))}>
+                      <SelectTrigger data-testid="select-q-trait"><SelectValue placeholder="Select trait" /></SelectTrigger>
+                      <SelectContent>
+                        {["SELF CONFIDENCE","PLANNING ABILITY","COURAGE","EMOTIONAL STABILITY","RESPONSIBILITY","INTEGRITY","DETERMINATION","INITIATIVE","INFLUENCING ABILITY","SOCIAL RELATIONS","GENERAL AWARENESS","PRACTICAL ABILITY","PHYSICAL ENDURANCE","EXPRESSION"].map(t => (
+                          <SelectItem key={t} value={t}>{t}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                <div>
+                  <Label>Question Text</Label>
+                  <Textarea value={form.questionText} onChange={e => setForm(f => ({ ...f, questionText: e.target.value }))} rows={3} data-testid="input-q-text" />
+                </div>
+                {form.type === "academic" && (
+                  <>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(["A","B","C","D"] as const).map(k => (
+                        <div key={k}>
+                          <Label>Option {k}</Label>
+                          <Input value={(form.optionsJson as any)[k] || ""} onChange={e => setForm(f => ({ ...f, optionsJson: { ...f.optionsJson, [k]: e.target.value } }))} data-testid={`input-option-${k}`} />
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <Label>Correct Answer</Label>
+                      <Select value={form.correctAnswer} onValueChange={v => setForm(f => ({ ...f, correctAnswer: v }))}>
+                        <SelectTrigger data-testid="select-correct"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="A">A</SelectItem>
+                          <SelectItem value="B">B</SelectItem>
+                          <SelectItem value="C">C</SelectItem>
+                          <SelectItem value="D">D</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
+                <Button onClick={() => {
+                  if (form.type === "personality" && !form.trait) {
+                    toast({ title: "Please select a personality trait", variant: "destructive" });
+                    return;
+                  }
+                  if (form.type === "academic" && (!form.optionsJson.A || !form.optionsJson.B || !form.optionsJson.C || !form.optionsJson.D)) {
+                    toast({ title: "Please fill all four options", variant: "destructive" });
+                    return;
+                  }
+                  createMutation.mutate();
+                }} disabled={!form.questionText || createMutation.isPending} data-testid="button-save-question">
+                  {editId ? "Update" : "Save"}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {[
+          { key: "all", label: `All (${questions?.length || 0})` },
+          { key: "personality", label: `Personality (${counts.personality || 0})` },
+          { key: "intelligence", label: `Intelligence (${counts.intelligence || 0})` },
+          { key: "english", label: `English (${counts.english || 0})` },
+          { key: "science", label: `Science (${counts.science || 0})` },
+          { key: "math", label: `Math (${counts.math || 0})` },
+          { key: "urdu", label: `Urdu (${counts.urdu || 0})` },
+        ].map(f => (
+          <Button key={f.key} variant={filter === f.key ? "default" : "outline"} size="sm" onClick={() => setFilter(f.key)} data-testid={`filter-${f.key}`}>
+            {f.label}
+          </Button>
+        ))}
+      </div>
+
+      <p className="text-sm text-muted-foreground">
+        CSV format: <code>subject,question,optionA,optionB,optionC,optionD,correctAnswer</code>
+      </p>
+
+      {isLoading ? (
+        <div className="py-8 text-center text-muted-foreground">Loading...</div>
+      ) : (
+        <div className="border rounded-lg overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">#</TableHead>
+                <TableHead>Question</TableHead>
+                <TableHead className="w-28">Subject/Trait</TableHead>
+                <TableHead className="w-20">Answer</TableHead>
+                <TableHead className="w-20">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.slice(0, 50).map((q, i) => (
+                <TableRow key={q.id} data-testid={`row-question-${q.id}`}>
+                  <TableCell className="text-xs text-muted-foreground">{i + 1}</TableCell>
+                  <TableCell className="text-sm max-w-xs truncate">{q.questionText}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary" className="text-xs">{q.type === "personality" ? q.trait : q.subject}</Badge>
+                  </TableCell>
+                  <TableCell className="text-sm font-mono">{q.correctAnswer || "—"}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(q)} data-testid={`button-edit-q-${q.id}`}>
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => deleteMutation.mutate(q.id)} data-testid={`button-delete-q-${q.id}`}>
+                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {filtered.length > 50 && (
+            <div className="p-3 text-center text-sm text-muted-foreground border-t">
+              Showing first 50 of {filtered.length} questions. Use filters to narrow down.
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

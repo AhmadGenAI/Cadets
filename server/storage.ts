@@ -1,11 +1,12 @@
 import { db } from "./db";
-import { eq, desc, asc } from "drizzle-orm";
+import { eq, desc, asc, and, sql } from "drizzle-orm";
 import {
-  users, provinces, colleges, packages, syllabus, mcqBank, pages, blogPosts, settings,
+  users, provinces, colleges, packages, syllabus, mcqBank, pages, blogPosts, settings, assessmentQuestions,
   type InsertUser, type User, type Province, type InsertProvince,
   type College, type InsertCollege, type Package, type InsertPackage,
   type Syllabus, type InsertSyllabus, type McqQuestion, type InsertMcq,
-  type Page, type InsertPage, type BlogPost, type InsertBlogPost, type Setting
+  type Page, type InsertPage, type BlogPost, type InsertBlogPost, type Setting,
+  type AssessmentQuestion, type InsertAssessmentQuestion
 } from "@shared/schema";
 
 export interface IStorage {
@@ -49,6 +50,13 @@ export interface IStorage {
   createBlogPost(data: InsertBlogPost): Promise<BlogPost>;
   updateBlogPost(id: number, data: Partial<InsertBlogPost>): Promise<BlogPost | undefined>;
   deleteBlogPost(id: number): Promise<void>;
+
+  getAssessmentQuestions(type: string, subject?: string): Promise<AssessmentQuestion[]>;
+  getAssessmentQuestionsBySubject(subject: string): Promise<AssessmentQuestion[]>;
+  getAllAssessmentQuestions(): Promise<AssessmentQuestion[]>;
+  createAssessmentQuestion(data: InsertAssessmentQuestion): Promise<AssessmentQuestion>;
+  updateAssessmentQuestion(id: number, data: Partial<InsertAssessmentQuestion>): Promise<AssessmentQuestion | undefined>;
+  deleteAssessmentQuestion(id: number): Promise<void>;
 
   getSetting(key: string): Promise<Setting | undefined>;
   setSetting(key: string, value: any): Promise<void>;
@@ -210,6 +218,37 @@ export class DatabaseStorage implements IStorage {
 
   async deleteBlogPost(id: number): Promise<void> {
     await db.delete(blogPosts).where(eq(blogPosts.id, id));
+  }
+
+  async getAssessmentQuestions(type: string, subject?: string): Promise<AssessmentQuestion[]> {
+    if (subject) {
+      return db.select().from(assessmentQuestions).where(
+        and(eq(assessmentQuestions.type, type), eq(assessmentQuestions.subject, subject))
+      );
+    }
+    return db.select().from(assessmentQuestions).where(eq(assessmentQuestions.type, type));
+  }
+
+  async getAssessmentQuestionsBySubject(subject: string): Promise<AssessmentQuestion[]> {
+    return db.select().from(assessmentQuestions).where(eq(assessmentQuestions.subject, subject));
+  }
+
+  async getAllAssessmentQuestions(): Promise<AssessmentQuestion[]> {
+    return db.select().from(assessmentQuestions);
+  }
+
+  async createAssessmentQuestion(data: InsertAssessmentQuestion): Promise<AssessmentQuestion> {
+    const [q] = await db.insert(assessmentQuestions).values(data).returning();
+    return q;
+  }
+
+  async updateAssessmentQuestion(id: number, data: Partial<InsertAssessmentQuestion>): Promise<AssessmentQuestion | undefined> {
+    const [q] = await db.update(assessmentQuestions).set(data).where(eq(assessmentQuestions.id, id)).returning();
+    return q;
+  }
+
+  async deleteAssessmentQuestion(id: number): Promise<void> {
+    await db.delete(assessmentQuestions).where(eq(assessmentQuestions.id, id));
   }
 
   async getSetting(key: string): Promise<Setting | undefined> {

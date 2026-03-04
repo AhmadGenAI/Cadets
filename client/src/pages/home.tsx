@@ -9,7 +9,7 @@ import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
 import { ChatbotWidget } from "@/components/chatbot-widget";
 import { SeoHead } from "@/components/seo-head";
-import { GraduationCap, MapPin, Calendar, ChevronRight, Anchor, Plane, Swords, BookOpen, Users, Award } from "lucide-react";
+import { GraduationCap, MapPin, Calendar, ChevronRight, Anchor, Plane, Swords, BookOpen, Users, Award, Brain, ClipboardCheck } from "lucide-react";
 import type { Province, College } from "@shared/schema";
 import { motion } from "framer-motion";
 
@@ -125,6 +125,54 @@ export default function Home() {
             ))}
           </motion.div>
         </div>
+      </section>
+
+      <section className="py-16 max-w-7xl mx-auto px-4">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-10">
+          <Badge variant="secondary" className="mb-3">Free Assessment</Badge>
+          <h2 className="text-3xl font-bold mb-3">Check Your Preparation Level</h2>
+          <p className="text-muted-foreground max-w-lg mx-auto">Take our free assessments to evaluate your personality traits and academic readiness for cadet college entrance exams.</p>
+        </motion.div>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={staggerContainer}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto"
+        >
+          <motion.div variants={fadeUp}>
+            <Card className="p-6 h-full flex flex-col" data-testid="card-personality-assessment">
+              <div className="w-12 h-12 rounded-md bg-purple-100 dark:bg-purple-950 flex items-center justify-center mb-4">
+                <Brain className="w-6 h-6 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-bold mb-2">Personality Assessment</h3>
+              <p className="text-sm text-muted-foreground mb-4 flex-1">
+                Evaluate your personality across 14 key traits including self confidence, courage, integrity, determination, and leadership qualities that cadet colleges look for.
+              </p>
+              <Link href="/assessment/personality">
+                <Button className="w-full" data-testid="button-personality-assessment">
+                  <Brain className="w-4 h-4 mr-2" /> Start Personality Test
+                </Button>
+              </Link>
+            </Card>
+          </motion.div>
+          <motion.div variants={fadeUp}>
+            <Card className="p-6 h-full flex flex-col" data-testid="card-academic-assessment">
+              <div className="w-12 h-12 rounded-md bg-blue-100 dark:bg-blue-950 flex items-center justify-center mb-4">
+                <ClipboardCheck className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-bold mb-2">Academic Assessment</h3>
+              <p className="text-sm text-muted-foreground mb-4 flex-1">
+                Test your knowledge across Intelligence, English, General Science, Mathematics, and Urdu. Pass each subject to move forward and get personalized study recommendations.
+              </p>
+              <Link href="/assessment/academic">
+                <Button variant="outline" className="w-full" data-testid="button-academic-assessment">
+                  <ClipboardCheck className="w-4 h-4 mr-2" /> Start Academic Test
+                </Button>
+              </Link>
+            </Card>
+          </motion.div>
+        </motion.div>
       </section>
 
       <section className="py-20 max-w-7xl mx-auto px-4">
