@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,12 +9,12 @@ import { Label } from "@/components/ui/label";
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
 import { useToast } from "@/hooks/use-toast";
-import { FileDown, Loader2, CheckCircle } from "lucide-react";
-import type { McqQuestion } from "@shared/schema";
+import { FileDown, Loader2, CheckCircle, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
-import watermarkImg from "@assets/Shaheen_Forces_Academy_1772625469029.jpg";
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } };
+
+const SUBJECTS = ["Mathematics", "English", "General Science", "General Knowledge", "Urdu"];
 
 export default function PortalPdf() {
   const { user, isLoading: authLoading } = useAuth();
@@ -24,24 +23,13 @@ export default function PortalPdf() {
   const [subject, setSubject] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
-
-  const level = user?.level || "middle";
-  const { data: mcqs } = useQuery<McqQuestion[]>({
-    queryKey: [`/api/mcqs/${level}`],
-    enabled: !!user,
-  });
+  const [pdfCount, setPdfCount] = useState(0);
 
   if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   if (!user) { setLocation("/login"); return null; }
 
-  const subjects = Array.from(new Set(mcqs?.map(m => m.subject) ?? []));
-  const availableCount = subject && subject !== "all"
-    ? mcqs?.filter(m => m.subject === subject).length ?? 0
-    : mcqs?.length ?? 0;
-
   const handleGenerate = async () => {
     setLoading(true);
-    setGenerated(false);
     try {
       const res = await fetch("/api/pdf/generate", {
         method: "POST",
@@ -49,8 +37,6 @@ export default function PortalPdf() {
         credentials: "include",
         body: JSON.stringify({
           subject: subject || undefined,
-          level: user.level,
-          count: 5,
         }),
       });
 
@@ -63,13 +49,14 @@ export default function PortalPdf() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `shaheen-mcqs-${subject || "all"}-${Date.now()}.pdf`;
+      a.download = `mcq-paper-${subject || "mixed"}-${Date.now()}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
       setGenerated(true);
+      setPdfCount(c => c + 1);
       toast({ title: "PDF Generated", description: "Your MCQ paper has been downloaded." });
     } catch (e: any) {
       toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -87,88 +74,109 @@ export default function PortalPdf() {
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
             <h1 className="text-2xl font-bold mb-2" data-testid="text-pdf-title">PDF Generator</h1>
             <p className="text-muted-foreground mb-8">
-              Generate a practice paper with 5 MCQs, complete with watermark and answer key.
+              Generate MCQ practice papers for your preparation.
             </p>
 
             <Card className="p-6">
               <div className="flex flex-col items-center gap-6">
-                <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-primary/20">
-                  <img
-                    src={watermarkImg}
-                    alt="Cadet Colleges Test Preparation Portal"
-                    className="w-full h-full object-cover"
-                  />
+                <div className="w-16 h-16 rounded-md bg-primary/10 flex items-center justify-center">
+                  <FileDown className="w-8 h-8 text-primary" />
                 </div>
 
-                <div className="text-center">
-                  <h2 className="text-lg font-semibold">MCQ Practice Paper</h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Select a subject to generate a PDF with questions, options, and answer key.
-                  </p>
-                </div>
+                {!generated ? (
+                  <>
+                    <div className="w-full max-w-sm space-y-4">
+                      <div>
+                        <Label className="mb-2 block">Select Subject</Label>
+                        <Select onValueChange={setSubject} value={subject}>
+                          <SelectTrigger data-testid="select-pdf-subject">
+                            <SelectValue placeholder="All subjects (mixed)" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Subjects (Mixed)</SelectItem>
+                            {SUBJECTS.map(s => (
+                              <SelectItem key={s} value={s}>{s}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                <div className="w-full max-w-sm space-y-4">
-                  <div>
-                    <Label className="mb-2 block">Subject</Label>
-                    <Select onValueChange={setSubject} value={subject}>
-                      <SelectTrigger data-testid="select-pdf-subject">
-                        <SelectValue placeholder="All subjects (mixed)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Subjects (Mixed)</SelectItem>
-                        {subjects.map(s => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                      <div className="bg-muted/50 rounded-md p-3 text-sm text-muted-foreground">
+                        <p>We can generate a PDF practice paper for you here. Each paper contains 5 unique MCQs with answer key.</p>
+                      </div>
 
-                  <div className="bg-muted rounded-md p-3 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Available questions:</span>
-                      <span className="font-medium" data-testid="text-available-count">{availableCount}</span>
+                      <Button
+                        className="w-full"
+                        onClick={handleGenerate}
+                        disabled={loading}
+                        data-testid="button-generate-pdf"
+                      >
+                        {loading ? (
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                        ) : (
+                          <FileDown className="w-4 h-4 mr-2" />
+                        )}
+                        {loading ? "Generating PDF..." : "Generate & Download PDF"}
+                      </Button>
                     </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-muted-foreground">Questions in PDF:</span>
-                      <span className="font-medium">Up to 5</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-center">
+                      <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-950/30 flex items-center justify-center mx-auto mb-3">
+                        <CheckCircle className="w-6 h-6 text-green-600" />
+                      </div>
+                      <h2 className="text-lg font-semibold mb-1" data-testid="text-pdf-success">PDF Downloaded!</h2>
+                      <p className="text-sm text-muted-foreground">
+                        {pdfCount > 1
+                          ? `You have generated ${pdfCount} papers so far.`
+                          : "Your practice paper has been downloaded."}
+                      </p>
                     </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-muted-foreground">Level:</span>
-                      <span className="font-medium capitalize">{level}</span>
+
+                    <div className="w-full max-w-sm space-y-3">
+                      <p className="text-center text-sm font-medium" data-testid="text-want-more">
+                        Do you want another PDF?
+                      </p>
+                      <div className="flex gap-3">
+                        <Button
+                          className="flex-1"
+                          onClick={handleGenerate}
+                          disabled={loading}
+                          data-testid="button-yes-more"
+                        >
+                          {loading ? (
+                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          ) : (
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                          )}
+                          {loading ? "Generating..." : "Yes, Generate More"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => { setGenerated(false); setSubject(""); }}
+                          disabled={loading}
+                          data-testid="button-no-done"
+                        >
+                          No, I'm Done
+                        </Button>
+                      </div>
+
+                      <div className="text-center">
+                        <Button
+                          variant="link"
+                          size="sm"
+                          onClick={() => { setGenerated(false); }}
+                          className="text-xs"
+                          data-testid="button-change-subject"
+                        >
+                          Change Subject
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="bg-muted/50 rounded-md p-3 text-xs text-muted-foreground space-y-1.5">
-                    <p className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                      PDF includes Shaheen Forces Academy watermark
-                    </p>
-                    <p className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                      Answer key included at the end
-                    </p>
-                    <p className="flex items-start gap-2">
-                      <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
-                      Footer: www.pakshaheens.com + WhatsApp contact
-                    </p>
-                  </div>
-
-                  <Button
-                    className="w-full"
-                    onClick={handleGenerate}
-                    disabled={loading || availableCount === 0}
-                    data-testid="button-generate-pdf"
-                  >
-                    {loading ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : generated ? (
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                    ) : (
-                      <FileDown className="w-4 h-4 mr-2" />
-                    )}
-                    {loading ? "Generating..." : generated ? "Download Again" : "Generate & Download PDF"}
-                  </Button>
-                </div>
+                  </>
+                )}
               </div>
             </Card>
           </motion.div>

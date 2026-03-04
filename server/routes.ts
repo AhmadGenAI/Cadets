@@ -448,7 +448,7 @@ export async function registerRoutes(
     res.json({ reply });
   });
 
-  // PDF generation
+  // PDF generation using AI-generated MCQs
   app.post("/api/pdf/generate", requireAuth, async (req, res) => {
     try {
       const { subject } = req.body;
@@ -460,23 +460,95 @@ export async function registerRoutes(
       }
 
       const mcqLevel = user.level || "middle";
-      const subjectFilter = subject && subject !== "all" ? subject : undefined;
-      const allMcqs = await storage.getMcqs(mcqLevel, subjectFilter);
+      const subjectLabel = subject && subject !== "all" ? subject : "Mixed Subjects";
+      const levelMap: Record<string, string> = {
+        middle: "middle school level (class 6-8)",
+        high: "high school level (class 9-10)",
+        matric: "matriculation level (class 9-10)",
+      };
+      const levelDesc = levelMap[mcqLevel] || levelMap.middle;
 
-      if (allMcqs.length === 0) {
-        return res.status(404).json({ message: "No MCQs found for the selected criteria" });
+      const subjectPrompt = subject && subject !== "all"
+        ? `Generate exactly 5 unique multiple choice questions (MCQs) for the subject "${subject}" at ${levelDesc} for Pakistani cadet college entrance exam preparation.`
+        : `Generate exactly 5 unique multiple choice questions (MCQs) covering a mix of Mathematics, English, General Science, General Knowledge (Pakistan-focused), and Urdu at ${levelDesc} for Pakistani cadet college entrance exam preparation. Include 1 question from each subject.`;
+
+      const aiPrompt = `${subjectPrompt}
+
+Each question must have exactly 4 options (a, b, c, d) with one correct answer.
+Include a brief explanation for the correct answer.
+Make questions varied in difficulty - some easy, some medium, some challenging.
+For General Knowledge, focus on Pakistan's geography, history, current affairs, and Islamic studies.
+For Urdu questions, write in Urdu script.
+Every question MUST be different from previous generations - be creative and varied.
+
+Return ONLY valid JSON in this exact format (no markdown, no code blocks):
+[
+  {
+    "questionText": "What is 15% of 300?",
+    "optionsJson": {"a": "30", "b": "45", "c": "50", "d": "60"},
+    "correctOption": "b",
+    "explanation": "15% of 300 = (15/100) × 300 = 45",
+    "subject": "Mathematics"
+  }
+]`;
+
+      const OpenAI = (await import("openai")).default;
+      const openai = new OpenAI({
+        apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
+        baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+      });
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: "You are an expert Pakistani education MCQ generator. You generate unique, high-quality multiple choice questions for cadet college entrance exams. Always return valid JSON array only." },
+          { role: "user", content: aiPrompt }
+        ],
+        temperature: 1.0,
+        max_tokens: 2000,
+      });
+
+      const responseText = completion.choices[0]?.message?.content || "[]";
+      let aiMcqs: any[];
+      try {
+        const cleaned = responseText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+        aiMcqs = JSON.parse(cleaned);
+      } catch {
+        console.error("AI response parse error:", responseText.substring(0, 500));
+        return res.status(500).json({ message: "Failed to generate questions. Please try again." });
       }
 
-      const MAX_QUESTIONS = 5;
-      const numQuestions = Math.min(MAX_QUESTIONS, allMcqs.length);
-      const shuffled = [...allMcqs].sort(() => Math.random() - 0.5);
-      const selected = shuffled.slice(0, numQuestions);
+      if (!Array.isArray(aiMcqs) || aiMcqs.length === 0) {
+        return res.status(500).json({ message: "No questions generated. Please try again." });
+      }
 
-      const title = subject
-        ? `${subject} - MCQ Practice (${mcqLevel.charAt(0).toUpperCase() + mcqLevel.slice(1)} Level)`
-        : `MCQ Practice Paper (${mcqLevel.charAt(0).toUpperCase() + mcqLevel.slice(1)} Level)`;
+      const validMcqs = aiMcqs.filter((q: any) =>
+        q && typeof q.questionText === "string" && q.questionText.trim() &&
+        q.optionsJson && typeof q.optionsJson === "object" &&
+        q.optionsJson.a && q.optionsJson.b && q.optionsJson.c && q.optionsJson.d &&
+        typeof q.correctOption === "string" && ["a", "b", "c", "d"].includes(q.correctOption.toLowerCase())
+      );
 
-      const pdfBuffer = await generateMcqPdf(selected, title, user.name || undefined);
+      if (validMcqs.length === 0) {
+        return res.status(500).json({ message: "Generated questions were invalid. Please try again." });
+      }
+
+      const mcqs = validMcqs.slice(0, 5).map((q: any, i: number) => ({
+        id: i + 1,
+        questionText: q.questionText,
+        optionsJson: q.optionsJson,
+        correctOption: q.correctOption.toLowerCase(),
+        explanation: q.explanation || "",
+        subject: q.subject || subjectLabel,
+        level: mcqLevel,
+        topic: null,
+        collegeId: null,
+        language: "english",
+      }));
+
+      const title = `${subjectLabel} - MCQ Practice Paper (${mcqLevel.charAt(0).toUpperCase() + mcqLevel.slice(1)} Level)`;
+
+      const pdfBuffer = await generateMcqPdf(mcqs, title, user.name || undefined);
 
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", `attachment; filename=shaheen-mcqs-${Date.now()}.pdf`);
