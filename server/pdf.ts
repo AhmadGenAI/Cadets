@@ -4,6 +4,13 @@ import path from "path";
 import type { McqQuestion } from "@shared/schema";
 
 const WATERMARK_PATH = path.join(process.cwd(), "client/public/images/watermark.jpg");
+const URDU_FONT_PATH = path.join(process.cwd(), "server/fonts/JameelNooriNastaleeq.ttf");
+
+const URDU_REGEX = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/;
+
+function hasUrdu(text: string): boolean {
+  return URDU_REGEX.test(text);
+}
 
 export function generateMcqPdf(
   mcqs: McqQuestion[],
@@ -18,9 +25,32 @@ export function generateMcqPdf(
     doc.on("end", () => resolve(Buffer.concat(buffers)));
     doc.on("error", reject);
 
+    const urduAvailable = fs.existsSync(URDU_FONT_PATH);
+    if (urduAvailable) {
+      doc.registerFont("Urdu", URDU_FONT_PATH);
+    }
+
     const pageWidth = doc.page.width;
     const pageHeight = doc.page.height;
     const contentWidth = pageWidth - 100;
+
+    const setFont = (text: string, style: "normal" | "bold" = "normal") => {
+      if (urduAvailable && hasUrdu(text)) {
+        doc.font("Urdu");
+      } else {
+        doc.font(style === "bold" ? "Helvetica-Bold" : "Helvetica");
+      }
+    };
+
+    const getTextFeatures = (text: string) => {
+      const isUrdu = urduAvailable && hasUrdu(text);
+      return {
+        isUrdu,
+        align: isUrdu ? "right" as const : "left" as const,
+        fontSize: isUrdu ? 12 : 10,
+        optionFontSize: isUrdu ? 11 : 9.5,
+      };
+    };
 
     const addWatermark = () => {
       if (fs.existsSync(WATERMARK_PATH)) {
@@ -37,7 +67,7 @@ export function generateMcqPdf(
 
     const addFooter = () => {
       doc.save();
-      doc.fontSize(8).fillColor("#888888");
+      doc.fontSize(8).fillColor("#888888").font("Helvetica");
       doc.text("www.pakshaheens.com", 50, pageHeight - 40, { align: "center", width: contentWidth });
       doc.text("WhatsApp: +923348480890", 50, pageHeight - 28, { align: "center", width: contentWidth });
       doc.restore();
@@ -64,12 +94,14 @@ export function generateMcqPdf(
     doc.moveDown(1);
     doc.y = 100;
 
-    doc.fontSize(14).fillColor("#111111").font("Helvetica-Bold");
+    setFont(title, "bold");
+    doc.fontSize(14).fillColor("#111111");
     doc.text(title, 50, doc.y, { align: "center", width: contentWidth });
     doc.moveDown(0.3);
 
     if (studentName) {
-      doc.fontSize(10).fillColor("#555555").font("Helvetica");
+      setFont(studentName);
+      doc.fontSize(10).fillColor("#555555");
       doc.text(`Student: ${studentName}`, 50, doc.y, { align: "center", width: contentWidth });
       doc.moveDown(0.3);
     }
@@ -90,10 +122,19 @@ export function generateMcqPdf(
         doc.y = 100;
       }
 
-      doc.fontSize(10).fillColor("#1a7a3a").font("Helvetica-Bold");
-      doc.text(`Q${idx + 1}.`, 50, doc.y, { continued: true, width: contentWidth });
-      doc.fillColor("#111111").font("Helvetica");
-      doc.text(` ${mcq.questionText}`, { width: contentWidth - 30 });
+      const tf = getTextFeatures(mcq.questionText);
+
+      doc.fontSize(tf.fontSize).fillColor("#1a7a3a").font("Helvetica-Bold");
+      doc.text(`Q${idx + 1}. `, 50, doc.y, { continued: !tf.isUrdu, width: contentWidth });
+
+      if (tf.isUrdu) {
+        setFont(mcq.questionText);
+        doc.fontSize(tf.fontSize).fillColor("#111111");
+        doc.text(mcq.questionText, 50, doc.y, { align: "right", width: contentWidth, features: ["rtla", "rlig"] });
+      } else {
+        doc.fillColor("#111111").font("Helvetica");
+        doc.text(mcq.questionText, { width: contentWidth - 30 });
+      }
       doc.moveDown(0.4);
 
       const options = mcq.optionsJson as Record<string, string>;
@@ -101,9 +142,20 @@ export function generateMcqPdf(
         const optLabels = ["A", "B", "C", "D"];
         const keys = Object.keys(options);
         keys.forEach((key, i) => {
-          doc.fontSize(9.5).fillColor("#333333").font("Helvetica");
+          const optText = options[key];
           const label = optLabels[i] || key.toUpperCase();
-          doc.text(`     ${label})  ${options[key]}`, 60, doc.y, { width: contentWidth - 30 });
+          const optFeatures = getTextFeatures(optText);
+
+          if (optFeatures.isUrdu) {
+            doc.fontSize(optFeatures.optionFontSize).fillColor("#333333").font("Helvetica");
+            doc.text(`${label})  `, 60, doc.y, { continued: true, width: contentWidth - 30 });
+            setFont(optText);
+            doc.fontSize(optFeatures.optionFontSize);
+            doc.text(optText, { features: ["rtla", "rlig"] });
+          } else {
+            doc.fontSize(optFeatures.optionFontSize).fillColor("#333333").font("Helvetica");
+            doc.text(`     ${label})  ${optText}`, 60, doc.y, { width: contentWidth - 30 });
+          }
           doc.moveDown(0.15);
         });
       }
