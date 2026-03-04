@@ -18,7 +18,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Shield, Users, MapPin, GraduationCap, Package, FileText, Settings,
-  Plus, Pencil, Trash2, LogOut, LayoutDashboard, Download, Smartphone, ClipboardList, Upload
+  Plus, Pencil, Trash2, LogOut, LayoutDashboard, Download, Smartphone, ClipboardList, Upload, CalendarDays
 } from "lucide-react";
 import type { User, Province, College, Package as PkgType, Page as PageType, BlogPost, AssessmentQuestion } from "@shared/schema";
 
@@ -125,6 +125,8 @@ function DashboardTab() {
 function UsersTab() {
   const { data: users, isLoading } = useQuery<User[]>({ queryKey: ["/api/admin/users"] });
   const { toast } = useToast();
+  const [renewUserId, setRenewUserId] = useState<number | null>(null);
+  const [renewDate, setRenewDate] = useState("");
 
   const toggleMutation = useMutation({
     mutationFn: async ({ id, isActive }: { id: number; isActive: boolean }) => {
@@ -136,9 +138,28 @@ function UsersTab() {
     },
   });
 
+  const renewMutation = useMutation({
+    mutationFn: async ({ id, date }: { id: number; date: string }) => {
+      await apiRequest("PATCH", `/api/admin/users/${id}`, { packageExpiryDate: date });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({ title: "User renewed", description: `Active until ${renewDate}` });
+      setRenewUserId(null);
+      setRenewDate("");
+    },
+  });
+
   const exportUsers = async () => {
     window.open("/api/admin/users/export", "_blank");
   };
+
+  const formatDate = (d: string | Date | null | undefined) => {
+    if (!d) return "-";
+    return new Date(d).toLocaleDateString("en-PK", { day: "2-digit", month: "short", year: "numeric" });
+  };
+
+  const renewUser = users?.find(u => u.id === renewUserId);
 
   return (
     <div className="space-y-4">
@@ -155,9 +176,12 @@ function UsersTab() {
               <TableHead>Mobile</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Level</TableHead>
+              <TableHead>Registered</TableHead>
+              <TableHead>Expiring</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Package</TableHead>
               <TableHead>Active</TableHead>
+              <TableHead>Renew</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -169,6 +193,16 @@ function UsersTab() {
                   <TableCell className="font-mono text-sm">{u.mobile}</TableCell>
                   <TableCell>{u.name || "-"}</TableCell>
                   <TableCell className="capitalize">{u.level || "-"}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground" data-testid={`text-registered-${u.id}`}>
+                    {formatDate(u.createdAt)}
+                  </TableCell>
+                  <TableCell className="text-sm" data-testid={`text-expiry-${u.id}`}>
+                    {endDate ? (
+                      <span className={isExpired ? "text-destructive font-medium" : "text-muted-foreground"}>
+                        {formatDate(endDate)}
+                      </span>
+                    ) : "-"}
+                  </TableCell>
                   <TableCell>
                     <Badge variant={isExpired ? "destructive" : "default"}>
                       {isExpired ? "Expired" : "Active"}
@@ -182,12 +216,77 @@ function UsersTab() {
                       data-testid={`switch-active-${u.id}`}
                     />
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setRenewUserId(u.id);
+                        const existing = u.packageExpiryDate || u.trialEndDate;
+                        if (existing) {
+                          const d = new Date(existing);
+                          if (d < new Date()) {
+                            const future = new Date();
+                            future.setDate(future.getDate() + 30);
+                            setRenewDate(future.toISOString().split("T")[0]);
+                          } else {
+                            setRenewDate(d.toISOString().split("T")[0]);
+                          }
+                        } else {
+                          const future = new Date();
+                          future.setDate(future.getDate() + 30);
+                          setRenewDate(future.toISOString().split("T")[0]);
+                        }
+                      }}
+                      data-testid={`button-renew-${u.id}`}
+                    >
+                      <CalendarDays className="w-3.5 h-3.5 mr-1" /> Renew
+                    </Button>
+                  </TableCell>
                 </TableRow>
               );
             })}
           </TableBody>
         </Table>
       </Card>
+
+      <Dialog open={renewUserId !== null} onOpenChange={(open) => { if (!open) setRenewUserId(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Renew User Access</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            {renewUser && (
+              <div className="bg-muted rounded-md p-3 text-sm space-y-1">
+                <p><span className="text-muted-foreground">User:</span> {renewUser.name || renewUser.mobile}</p>
+                <p><span className="text-muted-foreground">Mobile:</span> {renewUser.mobile}</p>
+                <p><span className="text-muted-foreground">Current Expiry:</span> {formatDate(renewUser.packageExpiryDate || renewUser.trialEndDate)}</p>
+              </div>
+            )}
+            <div>
+              <Label className="mb-2 block">Active Until (Expiry Date)</Label>
+              <Input
+                type="date"
+                value={renewDate}
+                onChange={e => setRenewDate(e.target.value)}
+                data-testid="input-renew-date"
+              />
+            </div>
+            <Button
+              className="w-full"
+              disabled={!renewDate || renewMutation.isPending}
+              onClick={() => {
+                if (renewUserId && renewDate) {
+                  renewMutation.mutate({ id: renewUserId, date: renewDate });
+                }
+              }}
+              data-testid="button-confirm-renew"
+            >
+              {renewMutation.isPending ? "Saving..." : "Save & Renew"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
