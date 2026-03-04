@@ -13,7 +13,7 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 - Public landing page with provinces, colleges, hero section, and free assessment CTAs
 - Student registration/login via mobile number
 - Student portal: AI tutor (warm human-like personal tutor with student name), MCQ quizzes, interview prep, medical tips, PDF paper generator, profile
-- Public chatbot ("Shaheen Bot"): warm bilingual Urdu/English tone, uses "beta", gives admission info, promotes portal enrollment with package prices
+- Public chatbot ("Shaheen Bot"): warm bilingual Urdu/English tone, uses "beta", gives admission info, promotes portal enrollment with package prices. Expanded topics: hostel/boarding life, scholarships/concessions, uniform, sports/activities, results/merit, rankings/comparisons, required documents, test dates, college-specific lookup. Unknown queries fallback to WhatsApp +923348480890
 - Free Assessment Tools (public, no login required):
   - Personality Assessment: 14-trait Likert scale evaluation
   - Academic Assessment: 5-subject timed MCQ test (Intelligence, English, Science, Math, Urdu)
