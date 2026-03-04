@@ -444,7 +444,7 @@ export async function registerRoutes(
         return res.status(404).json({ message: "No MCQs found for the selected criteria" });
       }
 
-      const MAX_QUESTIONS = 25;
+      const MAX_QUESTIONS = 5;
       const numQuestions = Math.min(MAX_QUESTIONS, allMcqs.length);
       const shuffled = [...allMcqs].sort(() => Math.random() - 0.5);
       const selected = shuffled.slice(0, numQuestions);

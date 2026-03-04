@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
@@ -30,7 +31,7 @@ const welcomeMessages = [
 ];
 
 const dashboardItems = [
-  { title: "Start Preparation", desc: "AI-powered smart tutoring session", icon: Brain, href: "/portal/prep", color: "text-primary" },
+  { title: "Live Chat", desc: "Interactive MCQ tutoring with voice", icon: Brain, href: "/portal/prep", color: "text-primary" },
   { title: "MCQs & Quizzes", desc: "Practice questions by topic", icon: ClipboardList, href: "/portal/quizzes", color: "text-blue-500 dark:text-blue-400" },
   { title: "Interview Prep", desc: "Tips and mock questions", icon: BookOpen, href: "/portal/interview", color: "text-orange-500 dark:text-orange-400" },
   { title: "Medical Tips", desc: "Physical & medical exam guide", icon: Stethoscope, href: "/portal/medical", color: "text-red-500 dark:text-red-400" },
@@ -58,7 +59,7 @@ export default function Portal() {
   }
 
   const selectedCollege = colleges?.find(c => c.id === user.selectedCollegeId);
-  const welcomeMsg = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
+  const [welcomeMsg] = useState(() => welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)]);
 
   const getStatusBadge = () => {
     if (!user.packageExpiryDate && !user.trialEndDate) {

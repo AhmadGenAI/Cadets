@@ -34,7 +34,7 @@ export default function PortalPdf() {
   if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   if (!user) { setLocation("/login"); return null; }
 
-  const subjects = [...new Set(mcqs?.map(m => m.subject) ?? [])];
+  const subjects = Array.from(new Set(mcqs?.map(m => m.subject) ?? []));
   const availableCount = subject && subject !== "all"
     ? mcqs?.filter(m => m.subject === subject).length ?? 0
     : mcqs?.length ?? 0;
@@ -50,7 +50,7 @@ export default function PortalPdf() {
         body: JSON.stringify({
           subject: subject || undefined,
           level: user.level,
-          count: 25,
+          count: 5,
         }),
       });
 
@@ -87,7 +87,7 @@ export default function PortalPdf() {
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
             <h1 className="text-2xl font-bold mb-2" data-testid="text-pdf-title">PDF Generator</h1>
             <p className="text-muted-foreground mb-8">
-              Generate a practice paper with 25 MCQs, complete with watermark and answer key.
+              Generate a practice paper with 5 MCQs, complete with watermark and answer key.
             </p>
 
             <Card className="p-6">
@@ -130,7 +130,7 @@ export default function PortalPdf() {
                     </div>
                     <div className="flex items-center justify-between mt-1">
                       <span className="text-muted-foreground">Questions in PDF:</span>
-                      <span className="font-medium">Up to 25</span>
+                      <span className="font-medium">Up to 5</span>
                     </div>
                     <div className="flex items-center justify-between mt-1">
                       <span className="text-muted-foreground">Level:</span>

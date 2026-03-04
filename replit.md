@@ -12,7 +12,12 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 ## Key Features
 - Public landing page with provinces, colleges, hero section, and free assessment CTAs
 - Student registration/login via mobile number
-- Student portal: AI tutor (warm human-like personal tutor with student name), MCQ quizzes, interview prep, medical tips, PDF paper generator, profile
+- Student portal:
+  - **Live Chat** (was "Start Preparation"): Interactive MCQ tutor with voice — opens with "Assalamo Alaikum", lets student pick subject (Math/English/Science/Urdu/GK), delivers MCQs one by one with instant right/wrong feedback, Math explanations, voice auto-read with ON/OFF toggle, subject switch prompt after 50 MCQs, Urdu essay/letter/story support
+  - **MCQ Quizzes**: 25-question quiz per session with instant right/wrong feedback, progress bar, final score with percentage, restart with unique questions (tracks used IDs)
+  - **Interview Prep**: 507 Q&A across 10 categories (Self-Intro, Family, GK, Pakistan Studies, Islamic, Cadet-Specific, Personality, Current Affairs, Academic, Misc) in expandable accordions; GK Quiz tab (20 random from 40 pool); Confidence & Body Language guide with 6 instruction cards
+  - **PDF Papers**: Auto-generates 5 random MCQs (was 25) with watermark, answer key, branding; unique questions each time
+  - Medical tips, profile management
 - Public chatbot ("Shaheen Bot"): warm bilingual Urdu/English tone, uses "beta", gives admission info, promotes portal enrollment with package prices. Expanded topics: hostel/boarding life, scholarships/concessions, uniform, sports/activities, results/merit, rankings/comparisons, required documents, test dates, college-specific lookup. Unknown queries fallback to WhatsApp +923348480890
 - Free Assessment Tools (public, no login required):
   - Personality Assessment: 14-trait Likert scale evaluation
