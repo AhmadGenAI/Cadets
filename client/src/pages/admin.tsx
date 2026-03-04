@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
@@ -18,7 +18,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Shield, Users, MapPin, GraduationCap, Package, FileText, Settings,
-  Plus, Pencil, Trash2, LogOut, LayoutDashboard, Download
+  Plus, Pencil, Trash2, LogOut, LayoutDashboard, Download, Smartphone
 } from "lucide-react";
 import type { User, Province, College, Package as PkgType, Page as PageType, BlogPost } from "@shared/schema";
 
@@ -31,7 +31,7 @@ export default function Admin() {
     return <div className="min-h-screen flex items-center justify-center bg-background"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   }
   if (!user || user.role !== "admin") {
-    setLocation("/login");
+    setLocation("/admin-login");
     return null;
   }
 
@@ -46,6 +46,7 @@ export default function Admin() {
             <span className="font-bold text-sm">Admin Panel</span>
           </div>
           <div className="flex items-center gap-2">
+            <AdminInstallButton />
             <Link href="/">
               <Button variant="ghost" size="sm" data-testid="button-view-site">View Site</Button>
             </Link>
@@ -651,5 +652,62 @@ function SettingsTab() {
         </Button>
       </Card>
     </div>
+  );
+}
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+function AdminInstallButton() {
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isIos, setIsIos] = useState(false);
+  const [showTip, setShowTip] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const iosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone;
+    if (iosDevice && !standalone) setIsIos(true);
+
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone;
+  if (isStandalone) return null;
+
+  const handleClick = useCallback(async () => {
+    if (deferredPrompt) {
+      await deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") {
+        setDeferredPrompt(null);
+        toast({ title: "App Installed", description: "You can now open the admin panel from your home screen." });
+      }
+    } else if (isIos) {
+      setShowTip(true);
+      toast({
+        title: "Install on iPhone/iPad",
+        description: "Tap the Share button (square with arrow) at the bottom of Safari, then tap 'Add to Home Screen'.",
+      });
+    } else {
+      toast({
+        title: "Install App",
+        description: "Open this page in Chrome or Edge on your mobile to install.",
+      });
+    }
+  }, [deferredPrompt, isIos, toast]);
+
+  return (
+    <Button variant="outline" size="sm" onClick={handleClick} data-testid="button-admin-install">
+      <Smartphone className="w-4 h-4 mr-1" />
+      <span className="hidden sm:inline">Install App</span>
+    </Button>
   );
 }
