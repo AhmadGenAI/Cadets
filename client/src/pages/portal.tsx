@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SeoHead } from "@/components/seo-head";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { PublicHeader } from "@/components/public-header";
@@ -79,6 +80,7 @@ export default function Portal() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title="Student Portal" description="Your cadet college preparation dashboard. Access AI tutor, quizzes, and prep materials." path="/portal" />
       <PublicHeader />
       <div className="flex-1 py-8 px-4">
         <div className="max-w-5xl mx-auto">

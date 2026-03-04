@@ -44,6 +44,15 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 - `client/src/components/` - Shared components
 - `client/src/lib/auth.tsx` - Auth context provider
 
+## SEO & Performance
+- SeoHead component sets per-page title, meta description, OG tags, canonical URL
+- ErrorBoundary wraps entire app for crash recovery
+- All routes lazy-loaded with React.lazy + Suspense (spinner fallback)
+- Query client configured with staleTime (5min), auto-retry for server errors, no retry for 4xx
+- Google Fonts trimmed to only Open Sans (was loading 30+ fonts)
+- index.html has structured data (JSON-LD), OG/Twitter meta, PWA manifest, apple-touch-icon
+- Process-level uncaughtException/unhandledRejection handlers in server
+
 ## Running
 - `npm run dev` starts Express + Vite dev server
 - `npm run db:push` pushes schema to database

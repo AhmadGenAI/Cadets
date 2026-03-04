@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "@shared/schema";
+import { SeoHead } from "@/components/seo-head";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title="Register" description="Create your cadet college test preparation account. Start your free trial today." path="/register" />
       <PublicHeader />
       <div className="flex-1 flex items-center justify-center p-4 py-12">
         <Card className="w-full max-w-md p-8">

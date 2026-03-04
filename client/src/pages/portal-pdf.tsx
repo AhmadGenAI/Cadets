@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SeoHead } from "@/components/seo-head";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { PublicHeader } from "@/components/public-header";
@@ -79,6 +80,7 @@ export default function PortalPdf() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title="PDF Paper Generator" description="Generate practice test papers in PDF format for cadet college preparation." path="/portal/pdf" />
       <PublicHeader />
       <div className="flex-1 py-8 px-4">
         <div className="max-w-2xl mx-auto">

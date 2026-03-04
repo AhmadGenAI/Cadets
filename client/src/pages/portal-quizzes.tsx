@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SeoHead } from "@/components/seo-head";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PublicHeader } from "@/components/public-header";
@@ -64,6 +65,7 @@ export default function PortalQuizzes() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title="MCQ Practice" description="Practice multiple choice questions for cadet college entrance exams." path="/portal/quizzes" />
       <PublicHeader />
       <div className="flex-1 py-8 px-4">
         <div className="max-w-3xl mx-auto">

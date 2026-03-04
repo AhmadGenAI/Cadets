@@ -8,6 +8,7 @@ import { AlertBar } from "@/components/alert-bar";
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
 import { ChatbotWidget } from "@/components/chatbot-widget";
+import { SeoHead } from "@/components/seo-head";
 import { GraduationCap, MapPin, Calendar, ChevronRight, Anchor, Plane, Swords, BookOpen, Users, Award } from "lucide-react";
 import type { Province, College } from "@shared/schema";
 import { motion } from "framer-motion";
@@ -45,6 +46,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead
+        title="Home"
+        description="Pakistan's premier cadet college entrance exam preparation platform. AI tutoring, MCQ practice, interview and medical prep for all cadet colleges."
+        path="/"
+      />
       <PublicHeader />
       <AlertBar />
 

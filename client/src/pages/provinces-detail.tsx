@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SeoHead } from "@/components/seo-head";
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
 import { ArrowLeft, MapPin, Calendar, GraduationCap } from "lucide-react";
@@ -25,6 +26,7 @@ export default function ProvincesDetail() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title={province?.name ? `${province.name} Cadet Colleges` : "Province"} path={`/provinces/${params?.id}`} />
       <PublicHeader />
       <div className="flex-1 py-12 px-4">
         <div className="max-w-5xl mx-auto">

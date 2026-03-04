@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@shared/schema";
+import { SeoHead } from "@/components/seo-head";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,6 +53,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title="Login" description="Login to your cadet college test preparation account." path="/login" />
       <PublicHeader />
       <div className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md p-8">

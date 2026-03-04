@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SeoHead } from "@/components/seo-head";
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
 import type { Page } from "@shared/schema";
@@ -16,6 +17,7 @@ export default function StaticPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title={page?.title} path={`/page/${params?.slug}`} />
       <PublicHeader />
       <div className="flex-1 py-12 px-4">
         <div className="max-w-3xl mx-auto">

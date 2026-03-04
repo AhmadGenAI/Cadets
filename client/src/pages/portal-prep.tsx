@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { SeoHead } from "@/components/seo-head";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -64,6 +65,7 @@ export default function PortalPrep() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title="AI Tutor" description="Chat with your AI tutor for personalized cadet college exam preparation." path="/portal/prep" />
       <PublicHeader />
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-6">
         <div className="flex items-center gap-3 mb-4">

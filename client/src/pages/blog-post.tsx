@@ -3,6 +3,7 @@ import { useRoute, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SeoHead } from "@/components/seo-head";
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
 import { ArrowLeft, Calendar } from "lucide-react";
@@ -19,6 +20,7 @@ export default function BlogPostPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title={post?.title} description={post?.excerpt || undefined} path={`/blog/${params?.slug}`} />
       <PublicHeader />
       <div className="flex-1 py-12 px-4">
         <div className="max-w-3xl mx-auto">

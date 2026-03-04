@@ -1,6 +1,7 @@
 import { useAuth } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
+import { SeoHead } from "@/components/seo-head";
 import { Badge } from "@/components/ui/badge";
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
@@ -35,6 +36,7 @@ export default function PortalProfile() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title="My Profile" path="/portal/profile" />
       <PublicHeader />
       <div className="flex-1 py-8 px-4">
         <div className="max-w-2xl mx-auto">

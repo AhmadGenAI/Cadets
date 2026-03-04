@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
+import { SeoHead } from "@/components/seo-head";
 import { Calendar, ArrowRight } from "lucide-react";
 import type { BlogPost } from "@shared/schema";
 import { motion } from "framer-motion";
@@ -19,6 +20,7 @@ export default function Blog() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title="Blog" description="Latest articles and tips for cadet college entrance exam preparation in Pakistan." path="/blog" />
       <PublicHeader />
       <div className="flex-1 py-16 px-4">
         <div className="max-w-5xl mx-auto">

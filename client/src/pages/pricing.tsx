@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
+import { SeoHead } from "@/components/seo-head";
 import { Check, Star } from "lucide-react";
 import type { Package } from "@shared/schema";
 import { motion } from "framer-motion";
@@ -18,6 +19,7 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SeoHead title="Pricing Plans" description="Affordable cadet college preparation packages. Free trial, standard and premium plans with AI tutoring and MCQ practice." path="/pricing" />
       <PublicHeader />
       <div className="flex-1 py-20 px-4">
         <div className="max-w-5xl mx-auto">
