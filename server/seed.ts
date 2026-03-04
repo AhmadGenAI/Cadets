@@ -21,13 +21,13 @@ export async function seedDatabase() {
     isActive: true,
   });
 
-  const punjab = await storage.createProvince({ name: "Punjab", imageUrl: "/images/province-punjab.png", sortOrder: 1 });
-  const sindh = await storage.createProvince({ name: "Sindh", imageUrl: "/images/province-sindh.png", sortOrder: 2 });
-  const kpk = await storage.createProvince({ name: "Khyber Pakhtunkhwa", imageUrl: "/images/province-kpk.png", sortOrder: 3 });
-  const balochistan = await storage.createProvince({ name: "Balochistan", imageUrl: "/images/province-balochistan.png", sortOrder: 4 });
-  const ajk = await storage.createProvince({ name: "Azad Jammu & Kashmir", imageUrl: "/images/province-ajk.png", sortOrder: 5 });
-  await storage.createProvince({ name: "Gilgit-Baltistan", imageUrl: "/images/province-gb.png", sortOrder: 6 });
-  await storage.createProvince({ name: "Islamabad Capital Territory", imageUrl: "/images/province-ict.png", sortOrder: 7 });
+  const punjab = await storage.createProvince({ name: "Punjab", country: "Pakistan", imageUrl: "/images/province-punjab.png", sortOrder: 1 });
+  const sindh = await storage.createProvince({ name: "Sindh", country: "Pakistan", imageUrl: "/images/province-sindh.png", sortOrder: 2 });
+  const kpk = await storage.createProvince({ name: "Khyber Pakhtunkhwa", country: "Pakistan", imageUrl: "/images/province-kpk.png", sortOrder: 3 });
+  const balochistan = await storage.createProvince({ name: "Balochistan", country: "Pakistan", imageUrl: "/images/province-balochistan.png", sortOrder: 4 });
+  const ajk = await storage.createProvince({ name: "Azad Jammu & Kashmir", country: "Pakistan", imageUrl: "/images/province-ajk.png", sortOrder: 5 });
+  await storage.createProvince({ name: "Gilgit-Baltistan", country: "Pakistan", imageUrl: "/images/province-gb.png", sortOrder: 6 });
+  await storage.createProvince({ name: "Islamabad Capital Territory", country: "Pakistan", imageUrl: "/images/province-ict.png", sortOrder: 7 });
 
   await storage.createCollege({ name: "Cadet College Hasan Abdal", provinceId: punjab.id, city: "Hasan Abdal", applyLink: "https://cch.edu.pk", isFeatured: true, feeStructure: "One-Time: Registration Rs. 7,000. Admission Fee Rs. 2,000. Fee collected quarterly in advance. Late fee Rs. 200/day. Historical annual fee ~Rs. 150,000-175,000 (varies by class). Contact: admission@cch.edu.pk, 0343-1-224-224. Website: cch.edu.pk/fee-structure", contactNumber: "0572-520244, 0343-1-224-224", admissionClasses: "8" });
   await storage.createCollege({ name: "Lawrence College Ghora Gali", provinceId: punjab.id, city: "Murree", isFeatured: true, feeStructure: "Admission form (in person): Rs. 1,000. By post: Rs. 1,500. Test fee: Rs. 5,000 (non-refundable). Estimated annual fee Rs. 300,000-500,000 (boarding included). Contact college for exact current fee.", contactNumber: "051-9269205", admissionClasses: "8, 11" });
@@ -62,6 +62,95 @@ export async function seedDatabase() {
 
   await storage.createCollege({ name: "Cadet College Muzaffarabad", provinceId: ajk.id, city: "Muzaffarabad", isFeatured: false, feeStructure: "AJK government-subsidized. Estimated annual fee Rs. 120,000-200,000.", contactNumber: "05822-920045", admissionClasses: "8" });
   await storage.createCollege({ name: "Cadet College Palandri", provinceId: ajk.id, city: "Palandri", isFeatured: false, feeStructure: "AJK government-subsidized. Estimated annual fee Rs. 100,000-180,000.", contactNumber: "05824-460023", admissionClasses: "8" });
+
+  // --- International: India ---
+  const rajasthan = await storage.createProvince({ name: "Rajasthan", country: "India", sortOrder: 10 });
+  const mp = await storage.createProvince({ name: "Madhya Pradesh", country: "India", sortOrder: 11 });
+  const maharashtra = await storage.createProvince({ name: "Maharashtra", country: "India", sortOrder: 12 });
+  const karnataka = await storage.createProvince({ name: "Karnataka", country: "India", sortOrder: 13 });
+  const up = await storage.createProvince({ name: "Uttar Pradesh", country: "India", sortOrder: 14 });
+  const jharkhand = await storage.createProvince({ name: "Jharkhand", country: "India", sortOrder: 15 });
+  const wb = await storage.createProvince({ name: "West Bengal", country: "India", sortOrder: 16 });
+  const telangana = await storage.createProvince({ name: "Telangana", country: "India", sortOrder: 17 });
+  const himachal = await storage.createProvince({ name: "Himachal Pradesh", country: "India", sortOrder: 18 });
+  await storage.createCollege({ name: "Rashtriya Military School Ajmer", provinceId: rajasthan.id, city: "Ajmer", isFeatured: false, feeStructure: "Government of India run. Subsidized fee structure.", admissionClasses: "6, 9" });
+  await storage.createCollege({ name: "Sainik School Chittorgarh", provinceId: rajasthan.id, city: "Chittorgarh", isFeatured: false, feeStructure: "Kendriya Sainik Board. Subsidized fees for defence wards.", admissionClasses: "6, 9" });
+  await storage.createCollege({ name: "Rashtriya Military School Dholpur", provinceId: rajasthan.id, city: "Dholpur", isFeatured: false, feeStructure: "Government of India run military school.", admissionClasses: "6, 9" });
+  await storage.createCollege({ name: "Sainik School Rewa", provinceId: mp.id, city: "Rewa", isFeatured: false, feeStructure: "Kendriya Sainik Board. Subsidized fees.", admissionClasses: "6, 9" });
+  await storage.createCollege({ name: "Rashtriya Military School Belgaum", provinceId: karnataka.id, city: "Belgaum", isFeatured: false, feeStructure: "Government of India run military school.", admissionClasses: "6, 9" });
+  await storage.createCollege({ name: "Sainik School Satara", provinceId: maharashtra.id, city: "Satara", isFeatured: false, feeStructure: "Kendriya Sainik Board. Subsidized fees.", admissionClasses: "6, 9" });
+  await storage.createCollege({ name: "Sainik School Lucknow", provinceId: up.id, city: "Lucknow", isFeatured: false, feeStructure: "Kendriya Sainik Board. Subsidized fees.", admissionClasses: "6, 9" });
+  await storage.createCollege({ name: "Sainik School Tilaiya", provinceId: jharkhand.id, city: "Tilaiya", isFeatured: false, feeStructure: "India's first Sainik School, established 1961.", admissionClasses: "6, 9" });
+  await storage.createCollege({ name: "Rashtriya Military School Chail", provinceId: himachal.id, city: "Chail", isFeatured: false, feeStructure: "Government of India run military school.", admissionClasses: "6, 9" });
+  await storage.createCollege({ name: "Sainik School Purulia", provinceId: wb.id, city: "Purulia", isFeatured: false, feeStructure: "Kendriya Sainik Board. Subsidized fees.", admissionClasses: "6, 9" });
+  await storage.createCollege({ name: "Sainik School Korukonda", provinceId: telangana.id, city: "Korukonda", isFeatured: false, feeStructure: "Kendriya Sainik Board. Subsidized fees.", admissionClasses: "6, 9" });
+
+  // --- International: Bangladesh ---
+  const dhakaDivision = await storage.createProvince({ name: "Dhaka Division", country: "Bangladesh", sortOrder: 20 });
+  const chittagong = await storage.createProvince({ name: "Chittagong Division", country: "Bangladesh", sortOrder: 21 });
+  const rangpur = await storage.createProvince({ name: "Rangpur Division", country: "Bangladesh", sortOrder: 22 });
+  const sylhet = await storage.createProvince({ name: "Sylhet Division", country: "Bangladesh", sortOrder: 23 });
+  await storage.createCollege({ name: "Mirzapur Cadet College", provinceId: dhakaDivision.id, city: "Tangail", isFeatured: false, feeStructure: "Bangladesh government-run cadet college.", admissionClasses: "7" });
+  await storage.createCollege({ name: "Faujdarhat Cadet College", provinceId: chittagong.id, city: "Chittagong", isFeatured: false, feeStructure: "One of the oldest cadet colleges in Bangladesh.", admissionClasses: "7" });
+  await storage.createCollege({ name: "Jhenaidah Cadet College", provinceId: dhakaDivision.id, city: "Jhenaidah", isFeatured: false, feeStructure: "Bangladesh government-run cadet college.", admissionClasses: "7" });
+  await storage.createCollege({ name: "Rajshahi Cadet College", provinceId: rangpur.id, city: "Rajshahi", isFeatured: false, feeStructure: "Bangladesh government-run cadet college.", admissionClasses: "7" });
+  await storage.createCollege({ name: "Sylhet Cadet College", provinceId: sylhet.id, city: "Sylhet", isFeatured: false, feeStructure: "Bangladesh government-run cadet college.", admissionClasses: "7" });
+
+  // --- International: Turkey ---
+  const istanbul = await storage.createProvince({ name: "Istanbul", country: "Turkey", sortOrder: 30 });
+  const ankara = await storage.createProvince({ name: "Ankara", country: "Turkey", sortOrder: 31 });
+  await storage.createCollege({ name: "Kuleli Military High School", provinceId: istanbul.id, city: "Istanbul", isFeatured: false, feeStructure: "Turkish Armed Forces military high school.", admissionClasses: "9" });
+  await storage.createCollege({ name: "Isiklar Military High School", provinceId: ankara.id, city: "Ankara", isFeatured: false, feeStructure: "Turkish Armed Forces military high school.", admissionClasses: "9" });
+
+  // --- International: United Kingdom ---
+  const englandSe = await storage.createProvince({ name: "South East England", country: "United Kingdom", sortOrder: 40 });
+  const englandSw = await storage.createProvince({ name: "South West England", country: "United Kingdom", sortOrder: 41 });
+  const scotland = await storage.createProvince({ name: "Scotland", country: "United Kingdom", sortOrder: 42 });
+  await storage.createCollege({ name: "Royal Military Academy Sandhurst (Prep)", provinceId: englandSe.id, city: "Camberley", isFeatured: false, feeStructure: "UK Ministry of Defence funded.", admissionClasses: "11" });
+  await storage.createCollege({ name: "Welbeck Defence Sixth Form College", provinceId: englandSw.id, city: "Loughborough", isFeatured: false, feeStructure: "UK MOD funded sixth form college.", admissionClasses: "11" });
+  await storage.createCollege({ name: "Queen Victoria School", provinceId: scotland.id, city: "Dunblane", isFeatured: false, feeStructure: "UK MOD funded boarding school for forces children.", admissionClasses: "7, 8" });
+
+  // --- International: United States ---
+  const virginia = await storage.createProvince({ name: "Virginia", country: "United States", sortOrder: 50 });
+  const newYork = await storage.createProvince({ name: "New York", country: "United States", sortOrder: 51 });
+  const missouri = await storage.createProvince({ name: "Missouri", country: "United States", sortOrder: 52 });
+  const georgia = await storage.createProvince({ name: "Georgia", country: "United States", sortOrder: 53 });
+  await storage.createCollege({ name: "Virginia Military Institute", provinceId: virginia.id, city: "Lexington", isFeatured: false, feeStructure: "US state-supported military college.", admissionClasses: "11" });
+  await storage.createCollege({ name: "Fork Union Military Academy", provinceId: virginia.id, city: "Fork Union", isFeatured: false, feeStructure: "Private military academy.", admissionClasses: "7, 8, 9, 11" });
+  await storage.createCollege({ name: "US Military Academy Prep (West Point)", provinceId: newYork.id, city: "West Point", isFeatured: false, feeStructure: "US Army funded.", admissionClasses: "11" });
+  await storage.createCollege({ name: "Missouri Military Academy", provinceId: missouri.id, city: "Mexico", isFeatured: false, feeStructure: "Private military academy.", admissionClasses: "7, 8, 9, 11" });
+  await storage.createCollege({ name: "Riverside Military Academy", provinceId: georgia.id, city: "Gainesville", isFeatured: false, feeStructure: "Private military academy.", admissionClasses: "7, 8, 9, 11" });
+
+  // --- International: UAE ---
+  const abuDhabi = await storage.createProvince({ name: "Abu Dhabi", country: "United Arab Emirates", sortOrder: 60 });
+  const dubai = await storage.createProvince({ name: "Dubai", country: "United Arab Emirates", sortOrder: 61 });
+  await storage.createCollege({ name: "Khawla Bint Al Azwar Military School", provinceId: abuDhabi.id, city: "Abu Dhabi", isFeatured: false, feeStructure: "UAE Armed Forces military training school.", admissionClasses: "11" });
+
+  // --- International: Saudi Arabia ---
+  const riyadh = await storage.createProvince({ name: "Riyadh Region", country: "Saudi Arabia", sortOrder: 70 });
+  await storage.createCollege({ name: "King Abdulaziz Military Academy", provinceId: riyadh.id, city: "Riyadh", isFeatured: false, feeStructure: "Saudi Armed Forces military academy.", admissionClasses: "11" });
+
+  // --- International: Australia ---
+  const nsw = await storage.createProvince({ name: "New South Wales", country: "Australia", sortOrder: 80 });
+  const act = await storage.createProvince({ name: "Australian Capital Territory", country: "Australia", sortOrder: 81 });
+  await storage.createCollege({ name: "Australian Defence Force Academy (Prep)", provinceId: act.id, city: "Canberra", isFeatured: false, feeStructure: "Australian Defence Force funded.", admissionClasses: "11" });
+  await storage.createCollege({ name: "The King's School", provinceId: nsw.id, city: "North Parramatta", isFeatured: false, feeStructure: "Private school with military-style cadet program.", admissionClasses: "7, 8, 9" });
+
+  // --- International: Canada ---
+  const ontario = await storage.createProvince({ name: "Ontario", country: "Canada", sortOrder: 90 });
+  const bc = await storage.createProvince({ name: "British Columbia", country: "Canada", sortOrder: 91 });
+  await storage.createCollege({ name: "Royal Military College of Canada (Prep)", provinceId: ontario.id, city: "Kingston", isFeatured: false, feeStructure: "Canadian Armed Forces funded.", admissionClasses: "11" });
+  await storage.createCollege({ name: "Robert Land Academy", provinceId: ontario.id, city: "Wellandport", isFeatured: false, feeStructure: "Private military-style academy.", admissionClasses: "6, 7, 8, 9" });
+
+  // --- International: Qatar ---
+  const doha = await storage.createProvince({ name: "Doha", country: "Qatar", sortOrder: 100 });
+  await storage.createCollege({ name: "Ahmed Bin Mohammed Military College", provinceId: doha.id, city: "Doha", isFeatured: false, feeStructure: "Qatar Armed Forces military college.", admissionClasses: "11" });
+
+  // --- International: Malaysia ---
+  const kualaLumpur = await storage.createProvince({ name: "Federal Territory", country: "Malaysia", sortOrder: 110 });
+  const perak = await storage.createProvince({ name: "Perak", country: "Malaysia", sortOrder: 111 });
+  await storage.createCollege({ name: "Royal Military College Malaysia", provinceId: kualaLumpur.id, city: "Sungai Besi", isFeatured: false, feeStructure: "Malaysian Armed Forces military college.", admissionClasses: "8, 11" });
+  await storage.createCollege({ name: "Tunku Abdul Rahman Military College", provinceId: perak.id, city: "Kuala Kangsar", isFeatured: false, feeStructure: "Malaysian government military school.", admissionClasses: "8" });
 
   await storage.createPackage({
     name: "Free Trial",

@@ -191,7 +191,7 @@ export default function Home() {
             ? Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} className="h-48 rounded-md" />
               ))
-            : provinces?.filter(p => p.isVisible)?.map((province) => (
+            : provinces?.filter(p => p.isVisible && p.country === "Pakistan")?.map((province) => (
                 <motion.div key={province.id} variants={fadeUp}>
                   <Link href={`/provinces/${province.id}`}>
                     <Card

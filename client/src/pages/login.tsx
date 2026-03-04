@@ -60,7 +60,11 @@ export default function Login() {
     setLoading(true);
     try {
       const dialCode = selectedCodeKey.split("__")[0];
-      const fullMobile = values.mobile.startsWith("+") ? values.mobile : dialCode + values.mobile;
+      let cleanNum = values.mobile.replace(/[\s\-()]/g, "");
+      if (!cleanNum.startsWith("+") && cleanNum.startsWith("0")) {
+        cleanNum = cleanNum.substring(1);
+      }
+      const fullMobile = cleanNum.startsWith("+") ? cleanNum : dialCode + cleanNum;
       await login(fullMobile, values.password);
       const msg = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
       toast({ title: msg, description: "Let's start your preparation!" });

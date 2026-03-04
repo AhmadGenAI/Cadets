@@ -27,6 +27,7 @@ export const users = pgTable("users", {
 export const provinces = pgTable("provinces", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
+  country: varchar("country", { length: 100 }).notNull().default("Pakistan"),
   imageUrl: text("image_url"),
   sortOrder: integer("sort_order").notNull().default(0),
   isVisible: boolean("is_visible").notNull().default(true),
@@ -129,7 +130,7 @@ export const registerSchema = z.object({
   country: z.string().min(1, "Country is required"),
   selectedProvinceId: z.number().optional(),
   selectedCollegeId: z.number().optional(),
-  mobile: z.string().min(10, "Mobile number with country code is required (e.g. +923001234567)"),
+  mobile: z.string().min(4, "Mobile number is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 

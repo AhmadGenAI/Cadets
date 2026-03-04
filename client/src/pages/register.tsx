@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +18,33 @@ import { Shield, Phone, Lock, User, Mail, Loader2, MapPin, GraduationCap, Users,
 import type { College, Province } from "@shared/schema";
 import type { z } from "zod";
 
+const countryCodes: Record<string, { code: string; flag: string }> = {
+  "Pakistan": { code: "+92", flag: "🇵🇰" },
+  "India": { code: "+91", flag: "🇮🇳" },
+  "Bangladesh": { code: "+880", flag: "🇧🇩" },
+  "Turkey": { code: "+90", flag: "🇹🇷" },
+  "United Kingdom": { code: "+44", flag: "🇬🇧" },
+  "United States": { code: "+1", flag: "🇺🇸" },
+  "United Arab Emirates": { code: "+971", flag: "🇦🇪" },
+  "Saudi Arabia": { code: "+966", flag: "🇸🇦" },
+  "Canada": { code: "+1", flag: "🇨🇦" },
+  "Australia": { code: "+61", flag: "🇦🇺" },
+  "Qatar": { code: "+974", flag: "🇶🇦" },
+  "Malaysia": { code: "+60", flag: "🇲🇾" },
+  "Bahrain": { code: "+973", flag: "🇧🇭" },
+  "Kuwait": { code: "+965", flag: "🇰🇼" },
+  "Oman": { code: "+968", flag: "🇴🇲" },
+  "Germany": { code: "+49", flag: "🇩🇪" },
+  "Other": { code: "+", flag: "🌍" },
+};
+
+const countryOrder = [
+  "Pakistan", "India", "Bangladesh", "Turkey",
+  "United Kingdom", "United States", "United Arab Emirates", "Saudi Arabia",
+  "Canada", "Australia", "Qatar", "Malaysia",
+  "Bahrain", "Kuwait", "Oman", "Germany", "Other"
+];
+
 export default function Register() {
   const { register: doRegister } = useAuth();
   const [, setLocation] = useLocation();
@@ -29,16 +56,43 @@ export default function Register() {
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: "", fatherName: "", email: "", country: "Pakistan", selectedProvinceId: undefined, selectedCollegeId: undefined, mobile: "+92", password: "" },
+    defaultValues: { name: "", fatherName: "", email: "", country: "Pakistan", selectedProvinceId: undefined, selectedCollegeId: undefined, mobile: "", password: "" },
   });
 
+  const selectedCountry = form.watch("country");
   const selectedProvinceId = form.watch("selectedProvinceId");
-  const filteredColleges = colleges?.filter(c => !selectedProvinceId || c.provinceId === selectedProvinceId) ?? [];
+
+  const availableCountries = useMemo(() => {
+    const dbCountries = new Set(provinces?.map(p => p.country) ?? []);
+    const ordered = countryOrder.filter(c => c === "Other" || dbCountries.has(c));
+    dbCountries.forEach(c => { if (!ordered.includes(c)) ordered.splice(ordered.length - 1, 0, c); });
+    if (!ordered.includes("Other")) ordered.push("Other");
+    return ordered;
+  }, [provinces]);
+
+  const filteredProvinces = useMemo(() => {
+    return provinces?.filter(p => p.country === selectedCountry) ?? [];
+  }, [provinces, selectedCountry]);
+
+  const filteredColleges = useMemo(() => {
+    return colleges?.filter(c => !selectedProvinceId || c.provinceId === selectedProvinceId) ?? [];
+  }, [colleges, selectedProvinceId]);
+
+  const hasProvinces = filteredProvinces.length > 0;
+  const hasColleges = filteredColleges.length > 0;
+
+  const dialInfo = countryCodes[selectedCountry] || countryCodes["Other"];
 
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     setLoading(true);
     try {
-      const result = await doRegister(values);
+      const dial = countryCodes[values.country]?.code || "+";
+      let cleanNum = values.mobile.replace(/[\s\-()]/g, "");
+      if (!cleanNum.startsWith("+") && cleanNum.startsWith("0")) {
+        cleanNum = cleanNum.substring(1);
+      }
+      const fullMobile = cleanNum.startsWith("+") ? cleanNum : dial + cleanNum;
+      const result = await doRegister({ ...values, mobile: fullMobile });
       toast({
         title: "Registration completed successfully",
         description: `Free trial: ${result.trialDays} days. Duration extend karne ke liye WhatsApp +923348480890`,
@@ -121,7 +175,14 @@ export default function Register() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Country *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={(v) => {
+                        field.onChange(v);
+                        form.setValue("selectedProvinceId", undefined);
+                        form.setValue("selectedCollegeId", undefined);
+                      }}
+                      value={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger data-testid="select-country">
                           <Globe className="w-4 h-4 mr-1 text-muted-foreground" />
@@ -129,41 +190,9 @@ export default function Register() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Pakistan">Pakistan</SelectItem>
-                        <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-                        <SelectItem value="United States">United States</SelectItem>
-                        <SelectItem value="United Arab Emirates">United Arab Emirates</SelectItem>
-                        <SelectItem value="Saudi Arabia">Saudi Arabia</SelectItem>
-                        <SelectItem value="Canada">Canada</SelectItem>
-                        <SelectItem value="Australia">Australia</SelectItem>
-                        <SelectItem value="Qatar">Qatar</SelectItem>
-                        <SelectItem value="Bahrain">Bahrain</SelectItem>
-                        <SelectItem value="Kuwait">Kuwait</SelectItem>
-                        <SelectItem value="Oman">Oman</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="selectedProvinceId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select Province</FormLabel>
-                    <Select onValueChange={(v) => { field.onChange(parseInt(v)); form.setValue("selectedCollegeId", undefined); }} value={field.value?.toString()}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-province">
-                          <MapPin className="w-4 h-4 mr-1 text-muted-foreground" />
-                          <SelectValue placeholder="Choose your province" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {provinces?.map(p => (
-                          <SelectItem key={p.id} value={p.id.toString()}>
-                            {p.name}
+                        {availableCountries.map(c => (
+                          <SelectItem key={c} value={c}>
+                            {countryCodes[c]?.flag || "🌍"} {c}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -172,31 +201,75 @@ export default function Register() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="selectedCollegeId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Select Cadet College</FormLabel>
-                    <Select onValueChange={(v) => field.onChange(parseInt(v))} value={field.value?.toString()}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-college">
-                          <GraduationCap className="w-4 h-4 mr-1 text-muted-foreground" />
-                          <SelectValue placeholder={selectedProvinceId ? "Choose a cadet college" : "Select province first"} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {filteredColleges.map(c => (
-                          <SelectItem key={c.id} value={c.id.toString()}>
-                            {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {hasProvinces && (
+                <FormField
+                  control={form.control}
+                  name="selectedProvinceId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {selectedCountry === "Pakistan" ? "Province / Region" :
+                         selectedCountry === "United States" || selectedCountry === "Australia" ? "State" :
+                         selectedCountry === "Canada" ? "Province" :
+                         selectedCountry === "India" ? "State" :
+                         selectedCountry === "Bangladesh" ? "Division" :
+                         selectedCountry === "United Kingdom" ? "Region" :
+                         selectedCountry === "Malaysia" ? "State" :
+                         "Province / State"}
+                      </FormLabel>
+                      <Select
+                        onValueChange={(v) => {
+                          field.onChange(parseInt(v));
+                          form.setValue("selectedCollegeId", undefined);
+                        }}
+                        value={field.value?.toString()}
+                      >
+                        <FormControl>
+                          <SelectTrigger data-testid="select-province">
+                            <MapPin className="w-4 h-4 mr-1 text-muted-foreground" />
+                            <SelectValue placeholder="Choose province / state" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {filteredProvinces.map(p => (
+                            <SelectItem key={p.id} value={p.id.toString()}>
+                              {p.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              {hasColleges && selectedProvinceId && (
+                <FormField
+                  control={form.control}
+                  name="selectedCollegeId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Select Cadet College / Military School</FormLabel>
+                      <Select onValueChange={(v) => field.onChange(parseInt(v))} value={field.value?.toString()}>
+                        <FormControl>
+                          <SelectTrigger data-testid="select-college">
+                            <GraduationCap className="w-4 h-4 mr-1 text-muted-foreground" />
+                            <SelectValue placeholder="Choose an institution" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {filteredColleges.map(c => (
+                            <SelectItem key={c.id} value={c.id.toString()}>
+                              {c.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="mobile"
@@ -204,9 +277,15 @@ export default function Register() {
                   <FormItem>
                     <FormLabel>Mobile Number *</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input {...field} placeholder="+923001234567" className="pl-10" data-testid="input-mobile" />
+                      <div className="flex gap-2">
+                        <div className="flex items-center gap-1 px-3 rounded-md border bg-muted text-sm shrink-0 min-w-[90px]">
+                          <span>{dialInfo.flag}</span>
+                          <span className="text-muted-foreground">{dialInfo.code}</span>
+                        </div>
+                        <div className="relative flex-1">
+                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input {...field} placeholder="3001234567" className="pl-10" data-testid="input-mobile" />
+                        </div>
                       </div>
                     </FormControl>
                     <FormMessage />

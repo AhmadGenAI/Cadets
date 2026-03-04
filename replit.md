@@ -23,8 +23,8 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 
 ## Database Schema
 - `users` - Students and admins with mobile-based auth
-- `provinces` - Pakistani provinces with images
-- `colleges` - Cadet colleges linked to provinces (with feeStructure, contactNumber, admissionClasses)
+- `provinces` - Provinces/states/regions with `country` field (Pakistan, India, Bangladesh, Turkey, UK, US, UAE, Saudi Arabia, Canada, Australia, Qatar, Malaysia)
+- `colleges` - Cadet colleges/military schools linked to provinces (with feeStructure, contactNumber, admissionClasses) — includes international institutions
 - `packages` - Subscription packages (trial, standard, premium)
 - `syllabus` - Study material organized by level/subject
 - `mcq_bank` - Multiple choice questions for practice
