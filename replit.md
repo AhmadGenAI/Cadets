@@ -12,7 +12,8 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 ## Key Features
 - Public landing page with provinces, colleges, hero section, and free assessment CTAs
 - Student registration/login via mobile number
-- Student portal: AI tutor, MCQ quizzes, interview prep, medical tips, PDF paper generator, profile
+- Student portal: AI tutor (warm human-like personal tutor with student name), MCQ quizzes, interview prep, medical tips, PDF paper generator, profile
+- Public chatbot ("Shaheen Bot"): warm bilingual Urdu/English tone, uses "beta", gives admission info, promotes portal enrollment with package prices
 - Free Assessment Tools (public, no login required):
   - Personality Assessment: 14-trait Likert scale evaluation
   - Academic Assessment: 5-subject timed MCQ test (Intelligence, English, Science, Math, Urdu)
