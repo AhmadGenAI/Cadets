@@ -42,6 +42,8 @@ export const colleges = pgTable("colleges", {
   imageUrl: text("image_url"),
   isFeatured: boolean("is_featured").notNull().default(false),
   feeStructure: text("fee_structure"),
+  contactNumber: varchar("contact_number", { length: 100 }),
+  admissionClasses: varchar("admission_classes", { length: 200 }),
 });
 
 export const packages = pgTable("packages", {

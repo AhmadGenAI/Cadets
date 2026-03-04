@@ -282,7 +282,7 @@ function CollegesTab() {
   const { data: provinces } = useQuery<Province[]>({ queryKey: ["/api/provinces"] });
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", provinceId: "", city: "", lastApplyDate: "", isFeatured: false, applyLink: "", feeStructure: "" });
+  const [form, setForm] = useState({ name: "", provinceId: "", city: "", lastApplyDate: "", isFeatured: false, applyLink: "", feeStructure: "", contactNumber: "", admissionClasses: "" });
 
   const createMutation = useMutation({
     mutationFn: async () => {
@@ -294,13 +294,15 @@ function CollegesTab() {
         isFeatured: form.isFeatured,
         applyLink: form.applyLink || null,
         feeStructure: form.feeStructure || null,
+        contactNumber: form.contactNumber || null,
+        admissionClasses: form.admissionClasses || null,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/colleges"] });
       toast({ title: "College created" });
       setOpen(false);
-      setForm({ name: "", provinceId: "", city: "", lastApplyDate: "", isFeatured: false, applyLink: "", feeStructure: "" });
+      setForm({ name: "", provinceId: "", city: "", lastApplyDate: "", isFeatured: false, applyLink: "", feeStructure: "", contactNumber: "", admissionClasses: "" });
     },
   });
 
@@ -337,6 +339,8 @@ function CollegesTab() {
               <div><Label>Last Apply Date</Label><Input type="date" value={form.lastApplyDate} onChange={e => setForm(f => ({...f, lastApplyDate: e.target.value}))} data-testid="input-college-date" /></div>
               <div><Label>Website URL</Label><Input value={form.applyLink} onChange={e => setForm(f => ({...f, applyLink: e.target.value}))} placeholder="https://..." data-testid="input-college-link" /></div>
               <div><Label>Fee Structure</Label><Textarea value={form.feeStructure} onChange={e => setForm(f => ({...f, feeStructure: e.target.value}))} placeholder="Fee details (shown in chatbot responses)" rows={3} data-testid="input-college-fee" /></div>
+              <div><Label>Contact Number</Label><Input value={form.contactNumber} onChange={e => setForm(f => ({...f, contactNumber: e.target.value}))} placeholder="e.g. 0572-520244" data-testid="input-college-contact" /></div>
+              <div><Label>Admission Classes</Label><Input value={form.admissionClasses} onChange={e => setForm(f => ({...f, admissionClasses: e.target.value}))} placeholder="e.g. 8 or 6, 7, 8, 9, 11" data-testid="input-college-classes" /></div>
               <div className="flex items-center gap-2">
                 <Switch checked={form.isFeatured} onCheckedChange={c => setForm(f => ({...f, isFeatured: c}))} data-testid="switch-featured" />
                 <Label>Featured</Label>

@@ -213,8 +213,72 @@ export async function registerRoutes(
       }
     } else if (lowerMsg.includes("eligibility") || lowerMsg.includes("age") || lowerMsg.includes("requirement") || lowerMsg.includes("who can apply")) {
       reply = "**Eligibility Criteria**\n\n**Age:**\n- Class 7 entry: 11-13 years\n- Class 8 entry: 12-14 years\n- (Age limits may vary slightly by college)\n\n**Academic:**\n- Must have passed the previous class\n- Good grades in Mathematics, English, and Science\n\n**Other Requirements:**\n- Pakistani national or domicile holder\n- Physically fit (medical test required)\n- No serious medical conditions\n- Good moral character\n\nWould you like to know about a specific college?";
-    } else if (lowerMsg.includes("syllabus") || lowerMsg.includes("test pattern") || lowerMsg.includes("what to study") || lowerMsg.includes("paper pattern")) {
-      reply = "**Entry Test Syllabus**\n\nThe written test typically covers:\n\n1. **Mathematics** (30-40%)\n   - Arithmetic, Algebra, Geometry\n2. **English** (20-30%)\n   - Grammar, Vocabulary, Comprehension\n3. **Urdu** (10-15%)\n   - Grammar, Essay, Comprehension\n4. **General Knowledge / Islamiat** (15-20%)\n   - Pakistan Studies, Current Affairs, Islamic basics\n5. **Intelligence Test** (10-15%)\n   - Patterns, analogies, reasoning\n\n**Test Format:** Mostly MCQs with some subjective questions\n**Duration:** 2-3 hours\n\nRegister on our portal to practice subject-wise MCQs!";
+    } else if (lowerMsg.includes("syllabus") || lowerMsg.includes("test pattern") || lowerMsg.includes("what to study") || lowerMsg.includes("paper pattern") || lowerMsg.includes("nisab") || lowerMsg.includes("course outline")) {
+      const classMatch = lowerMsg.match(/(?:class|grade)\s*(\d+)|(\d+)(?:th|st|nd|rd)\s*(?:class|grade)?|^(\d+)$/);
+      const classNum = classMatch ? parseInt(classMatch[1] || classMatch[2] || classMatch[3]) : null;
+
+      const allColleges = await storage.getColleges();
+      const matchedCollege = allColleges.find(c => {
+        const cName = c.name.toLowerCase();
+        const cCity = (c.city || "").toLowerCase();
+        const nameWords = cName.replace(/cadet|college|military|school|pakistan|paf|pn/g, "").trim().split(/\s+/).filter(w => w.length > 2);
+        const nameMatch = nameWords.length > 0 && nameWords.some(w => lowerMsg.includes(w));
+        const cityMatch = cCity.length > 3 && lowerMsg.includes(cCity);
+        return nameMatch || cityMatch;
+      });
+
+      if (!classNum) {
+        reply = "**Entry Test Syllabus**\n\nAdmissions in cadet colleges are mostly held for:\n- **Class 8** (most common — after 7th grade)\n- **Class 11** (FSc/ICS level — after Matric)\n- Some colleges also offer entry in **Class 6, 7, and 9**\n\nPlease tell me which class syllabus you need? For example:\n- _\"Syllabus for class 8\"_\n- _\"8th class syllabus for Hasan Abdal\"_\n- _\"11th class test pattern\"_";
+      } else if (classNum === 6 || classNum === 7) {
+        reply = `**Entry Test Syllabus — Class ${classNum}**\n\n**Note:** Only a few colleges offer admission in Class ${classNum} (e.g., Cadet College Fateh Jang offers Class 6 & 7).\n\n**Subjects & Topics:**\n\n📘 **Mathematics (30-35%)**\n- Whole numbers, Fractions, Decimals\n- Basic Geometry (shapes, angles, perimeter, area)\n- Ratio and Proportion\n- Unitary Method\n- LCM & HCF\n\n📗 **English (25-30%)**\n- Basic Grammar (tenses, parts of speech)\n- Sentence correction\n- Vocabulary & Synonyms/Antonyms\n- Short reading comprehension\n- Fill in the blanks\n\n📕 **Urdu (15%)**\n- Urdu grammar basics (اسم، فعل، حرف)\n- محاورے اور ضرب الامثال\n- Short paragraph writing\n\n📙 **General Knowledge & Islamiat (15-20%)**\n- Islamic basics (نماز، روزے کی تعداد، کلمے)\n- Pakistan — capital, provinces, national symbols\n- Famous personalities\n- Basic Science facts\n\n📒 **Intelligence Test (10%)**\n- Pattern recognition\n- Number series\n- Odd one out\n\n**Format:** MCQs + short answer questions | **Duration:** 1.5 - 2 hours`;
+        const collegesWithClass = allColleges.filter(c => {
+          if (!c.admissionClasses) return false;
+          const classes = c.admissionClasses.split(",").map(s => s.trim());
+          return classes.includes(`${classNum}`);
+        });
+        if (collegesWithClass.length > 0) {
+          reply += `\n\n**Colleges offering Class ${classNum} admission:**\n` + collegesWithClass.map(c => `- ${c.name}${c.contactNumber ? ` (📞 ${c.contactNumber})` : ""}${c.applyLink ? ` — [Website](${c.applyLink})` : ""}`).join("\n");
+        }
+      } else if (classNum === 8) {
+        reply = `**Entry Test Syllabus — Class 8 (Most Common)**\n\nClass 8 entry is offered by almost all cadet colleges. The test is based on **Class 7 curriculum**.\n\n**Subjects & Topics:**\n\n📘 **Mathematics (30-40%)**\n- Integers, Fractions, Decimals, Percentages\n- Ratio, Proportion & Unitary Method\n- Algebra — basic expressions, linear equations\n- Geometry — lines, angles, triangles, circles\n- Mensuration — area, perimeter, volume\n- Data Handling — bar graphs, pie charts\n- Profit/Loss, Simple Interest\n\n📗 **English (20-30%)**\n- Parts of speech, Tenses (present, past, future)\n- Active/Passive voice, Direct/Indirect speech\n- Vocabulary — synonyms, antonyms, meanings\n- Comprehension passage\n- Sentence correction & transformation\n- Essay/Paragraph (some colleges)\n\n📕 **Urdu (10-15%)**\n- اردو گرامر (اسم، فعل، حروف، صفت)\n- محاورے، ضرب الامثال\n- خلاصہ نویسی / مضمون نویسی\n- نظم کی تشریح\n- خط نویسی\n\n📙 **General Knowledge / Islamiat (15-20%)**\n- Pakistan Studies — history, geography, constitution\n- Current Affairs — PM, President, COAS, important events\n- Islamic Studies — ارکان اسلام، نماز، قرآن مجید\n- Famous scientists, inventors, capitals\n- Basic everyday Science\n\n📒 **Intelligence / IQ Test (10-15%)**\n- Number series & patterns\n- Analogies (word & figure)\n- Odd one out\n- Coding-Decoding\n- Mirror images\n\n**Format:** Mostly MCQs (80-100 questions) + some subjective\n**Duration:** 2 - 3 hours\n**Passing marks:** Typically 50-60% (varies by college)`;
+        if (matchedCollege) {
+          reply += `\n\n**${matchedCollege.name}:**`;
+          if (matchedCollege.contactNumber) reply += `\n📞 Contact: ${matchedCollege.contactNumber}`;
+          if (matchedCollege.applyLink) reply += `\n🌐 Website: [${matchedCollege.applyLink}](${matchedCollege.applyLink})`;
+        }
+      } else if (classNum === 9) {
+        reply = `**Entry Test Syllabus — Class 9**\n\n**Note:** Only a few colleges offer admission in Class 9. The test is based on **Class 8 curriculum**.\n\n**Subjects & Topics:**\n\n📘 **Mathematics (30-35%)**\n- Algebraic expressions & factorization\n- Linear equations & inequalities\n- Geometry — congruence, similarity, Pythagoras theorem\n- Mensuration — surface area, volume\n- Statistics & Probability basics\n- Sets & Functions\n\n📗 **English (25-30%)**\n- Grammar — all tenses, conditionals, modals\n- Active/Passive, Direct/Indirect speech\n- Comprehension & summary writing\n- Essay, letter, application writing\n- Vocabulary & idioms\n\n📕 **Urdu (15%)**\n- Advanced Urdu grammar\n- نثر و نظم کی تشریح\n- خلاصہ نویسی\n- درخواست نویسی\n\n📙 **Science (15-20%)**\n- Physics — motion, force, energy\n- Chemistry — atoms, elements, compounds\n- Biology — cell structure, human body systems\n\n📒 **General Knowledge & Islamiat (10%)**\n- Pakistan & Islamic studies\n- Current affairs\n\n**Format:** MCQs + subjective | **Duration:** 2.5 - 3 hours`;
+        if (matchedCollege) {
+          reply += `\n\n**${matchedCollege.name}:**`;
+          if (matchedCollege.contactNumber) reply += `\n📞 Contact: ${matchedCollege.contactNumber}`;
+          if (matchedCollege.applyLink) reply += `\n🌐 Website: [${matchedCollege.applyLink}](${matchedCollege.applyLink})`;
+        }
+      } else if (classNum === 11 || classNum === 10) {
+        reply = `**Entry Test Syllabus — Class 11 (FSc/ICS Level)**\n\nSome cadet colleges offer admission in 1st Year (Class 11) after Matric. The test is based on **Matric (9th & 10th) curriculum**.\n\n**Subjects & Topics:**\n\n📘 **Mathematics (30-35%)**\n- Quadratic equations, Logarithms\n- Matrices, Determinants\n- Trigonometry — ratios, identities\n- Coordinate Geometry\n- Arithmetic & Geometric progressions\n- Sets, Functions, Variation\n\n📗 **English (20-25%)**\n- Advanced grammar — all tenses, clauses\n- Comprehension & precis writing\n- Essay, letter, story writing\n- Vocabulary, idioms, phrasal verbs\n- Translation (Urdu to English)\n\n📕 **Physics (15-20%)**\n- Kinematics, Dynamics, Work/Energy\n- Heat, Light, Sound\n- Electricity, Magnetism\n- Atomic Physics basics\n\n📗 **Chemistry (10-15%)**\n- Periodic table, Chemical bonding\n- Acids, Bases, Salts\n- Organic Chemistry basics\n- Chemical reactions & equations\n\n📙 **Biology (for Pre-Medical)**\n- Cell biology, Genetics basics\n- Human body systems\n- Plant biology\n- Ecology\n\n📒 **General Knowledge, Islamiat & Pak Studies (10%)**\n- Pakistan history & constitution\n- Islamic teachings\n- Current affairs\n\n**Format:** MCQs (100-150 questions) + subjective\n**Duration:** 3 hours\n\n**Colleges offering 11th Class entry:**`;
+        const collegesWithFsc = allColleges.filter(c => {
+          if (!c.admissionClasses) return false;
+          const classes = c.admissionClasses.split(",").map(s => s.trim());
+          return classes.includes("11");
+        });
+        if (collegesWithFsc.length > 0) {
+          reply += "\n" + collegesWithFsc.map(c => `- ${c.name}${c.contactNumber ? ` (📞 ${c.contactNumber})` : ""}${c.applyLink ? ` — [Website](${c.applyLink})` : ""}`).join("\n");
+        } else {
+          reply += "\n- Cadet College Kohat, Cadet College Hasan Abdal, Military College Jhelum, and several others";
+        }
+        if (matchedCollege) {
+          reply += `\n\n**${matchedCollege.name}:**`;
+          if (matchedCollege.contactNumber) reply += `\n📞 Contact: ${matchedCollege.contactNumber}`;
+          if (matchedCollege.applyLink) reply += `\n🌐 Website: [${matchedCollege.applyLink}](${matchedCollege.applyLink})`;
+        }
+      } else {
+        reply = `I don't have specific syllabus information for Class ${classNum}.\n\nCadet college admissions are typically held for:\n- **Class 6** (limited colleges like Fateh Jang)\n- **Class 7** (some colleges)\n- **Class 8** (most common — majority of colleges)\n- **Class 9** (few colleges)\n- **Class 11** (FSc/ICS level)\n\nPlease ask about one of these classes, e.g. _\"syllabus for class 8\"_`;
+      }
+
+      if (classNum && !matchedCollege) {
+        reply += "\n\n💡 **Tip:** Ask about a specific college's syllabus — e.g. _\"class 8 syllabus for Hasan Abdal\"_ — for college-specific details and contact info.";
+      }
+
+      reply += "\n\nRegister on our portal to practice subject-wise MCQs and take mock tests!";
     } else if (lowerMsg.includes("interview") || lowerMsg.includes("viva")) {
       reply = "**Interview Preparation**\n\nAfter passing the written test, selected candidates face an interview:\n\n**Common Questions:**\n- Tell me about yourself\n- Why do you want to join a cadet college?\n- Name the capitals of provinces\n- Current Prime Minister / President\n- Your favorite subject and why\n\n**Tips:**\n- Dress neatly in formal clothes\n- Maintain eye contact\n- Speak clearly and confidently\n- Know basic facts about Pakistan\n- Be honest in your answers\n\nOur portal has a dedicated Interview Prep section with 50+ practice questions!";
     } else if (lowerMsg.includes("medical") || lowerMsg.includes("physical") || lowerMsg.includes("health")) {
@@ -247,6 +311,14 @@ export async function registerRoutes(
       reply = `**Cadet Colleges in Pakistan**\n\n${listing}\n\nVisit our homepage to explore colleges by province!`;
     } else if (lowerMsg.includes("preparation") || lowerMsg.includes("prepare") || lowerMsg.includes("tips") || lowerMsg.includes("how to")) {
       reply = "**Preparation Tips**\n\n1. **Start 3-6 months** before the exam\n2. **Daily routine:** Study at least 2-3 hours\n3. **Focus areas:** Math (most important), English, GK\n4. **Practice MCQs** daily — aim for 25+ questions\n5. **Read newspapers** for current affairs\n6. **Physical fitness** — exercise regularly\n7. **Mock tests** — take weekly practice tests\n8. **Group study** can be helpful\n\nOur portal offers:\n- AI Smart Tutor for personalized help\n- Subject-wise MCQ practice\n- Interview & Medical prep guides\n- Downloadable PDF practice papers\n\n[Register now](/register) to start your free trial!";
+    } else if (/^(class\s*)?\d+(th|st|nd|rd)?(\s*class)?$/i.test(lowerMsg)) {
+      const numMatch = lowerMsg.match(/(\d+)/);
+      const num = numMatch ? parseInt(numMatch[1]) : 0;
+      if ([6, 7, 8, 9, 10, 11].includes(num)) {
+        reply = `You mentioned **Class ${num}**. What would you like to know?\n\n- _\"Syllabus for class ${num}\"_ — entry test subjects & topics\n- _\"Fee of class ${num}\"_ — fee information\n- _\"Admission class ${num}\"_ — admission process\n\nOr ask about a specific college: _\"class ${num} syllabus for Hasan Abdal\"_`;
+      } else {
+        reply = `Cadet college admissions are typically for **Class 6, 7, 8, 9, or 11**. Class ${num} is not a standard entry point.\n\nPlease ask about one of the available classes, e.g. _\"syllabus for class 8\"_`;
+      }
     } else if (isCadetRelated) {
       reply = `That's a great question about cadet colleges!\n\nI can help you with specific topics:\n- **Admissions** — dates, requirements, process\n- **Entry Test** — syllabus, pattern, tips\n- **Colleges** — list, details, locations\n- **Fees** — structure and scholarships\n- **Interview** — common questions, preparation\n- **Medical** — physical standards, tests\n\nPlease ask about any of these topics and I'll provide detailed information!`;
     } else {
