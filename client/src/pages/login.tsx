@@ -9,11 +9,29 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Phone, Lock, Loader2 } from "lucide-react";
 import type { z } from "zod";
+
+const countryCodes = [
+  { code: "+92", country: "Pakistan", flag: "🇵🇰" },
+  { code: "+44", country: "United Kingdom", flag: "🇬🇧" },
+  { code: "+1", country: "United States", flag: "🇺🇸" },
+  { code: "+971", country: "UAE", flag: "🇦🇪" },
+  { code: "+966", country: "Saudi Arabia", flag: "🇸🇦" },
+  { code: "+1", country: "Canada", flag: "🇨🇦" },
+  { code: "+61", country: "Australia", flag: "🇦🇺" },
+  { code: "+974", country: "Qatar", flag: "🇶🇦" },
+  { code: "+973", country: "Bahrain", flag: "🇧🇭" },
+  { code: "+965", country: "Kuwait", flag: "🇰🇼" },
+  { code: "+968", country: "Oman", flag: "🇴🇲" },
+  { code: "+90", country: "Turkey", flag: "🇹🇷" },
+  { code: "+60", country: "Malaysia", flag: "🇲🇾" },
+  { code: "+49", country: "Germany", flag: "🇩🇪" },
+];
 
 const welcomeMessages = [
   "Welcome back, future cadet!",
@@ -31,16 +49,19 @@ export default function Login() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [selectedCodeKey, setSelectedCodeKey] = useState("+92__Pakistan");
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { mobile: "+92", password: "" },
+    defaultValues: { mobile: "", password: "" },
   });
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setLoading(true);
     try {
-      await login(values.mobile, values.password);
+      const dialCode = selectedCodeKey.split("__")[0];
+      const fullMobile = values.mobile.startsWith("+") ? values.mobile : dialCode + values.mobile;
+      await login(fullMobile, values.password);
       const msg = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
       toast({ title: msg, description: "Let's start your preparation!" });
       setLocation("/portal");
@@ -72,11 +93,25 @@ export default function Login() {
                 name="mobile"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mobile Number (with country code)</FormLabel>
+                    <FormLabel>Mobile Number</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input {...field} placeholder="+923001234567" className="pl-10" data-testid="input-mobile" />
+                      <div className="flex gap-2">
+                        <Select value={selectedCodeKey} onValueChange={setSelectedCodeKey}>
+                          <SelectTrigger className="w-[130px] shrink-0" data-testid="select-country-code">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countryCodes.map((c, i) => (
+                              <SelectItem key={`${c.code}-${c.country}-${i}`} value={`${c.code}__${c.country}`}>
+                                {c.flag} {c.code}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <div className="relative flex-1">
+                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input {...field} placeholder="3001234567" className="pl-10" data-testid="input-mobile" />
+                        </div>
                       </div>
                     </FormControl>
                     <FormMessage />

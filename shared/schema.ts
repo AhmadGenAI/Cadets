@@ -134,7 +134,7 @@ export const registerSchema = z.object({
 });
 
 export const loginSchema = z.object({
-  mobile: z.string().min(10, "Mobile number is required"),
+  mobile: z.string().min(4, "Mobile number is required"),
   password: z.string().min(1, "Password is required"),
 });
 
