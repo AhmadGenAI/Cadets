@@ -39,7 +39,7 @@ export default function Pricing() {
           >
             {isLoading
               ? Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-80 rounded-md" />)
-              : packages?.map((pkg, idx) => {
+              : [...(packages || [])].sort((a, b) => a.price - b.price).map((pkg, idx) => {
                   const features: string[] = Array.isArray(pkg.featuresJson) ? pkg.featuresJson as string[] : [];
                   const isPopular = idx === 1;
                   return (
