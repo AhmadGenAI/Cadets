@@ -28,7 +28,7 @@ export default function Register() {
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { mobile: "", password: "", name: "", email: "", level: undefined },
+    defaultValues: { mobile: "", password: "", name: "", email: "" },
   });
 
   async function onSubmit(values: z.infer<typeof registerSchema>) {
@@ -145,29 +145,6 @@ export default function Register() {
                             {c.name}
                           </SelectItem>
                         ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="level"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Study Level</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger data-testid="select-level">
-                          <SelectValue placeholder="Select level" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="primary">Primary</SelectItem>
-                        <SelectItem value="middle">Middle</SelectItem>
-                        <SelectItem value="matric">Matric</SelectItem>
-                        <SelectItem value="intermediate">Intermediate</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

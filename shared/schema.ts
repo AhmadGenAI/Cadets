@@ -122,7 +122,6 @@ export const registerSchema = z.object({
   name: z.string().optional(),
   email: z.string().email().optional().or(z.literal("")),
   selectedCollegeId: z.number().optional(),
-  level: z.enum(["primary", "middle", "matric", "intermediate"]).optional(),
 });
 
 export const loginSchema = z.object({
