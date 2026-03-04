@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { PublicHeader } from "@/components/public-header";
 import { PublicFooter } from "@/components/public-footer";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Phone, Lock, User, Mail, Loader2, MapPin, GraduationCap, Users } from "lucide-react";
+import { Shield, Phone, Lock, User, Mail, Loader2, MapPin, GraduationCap, Users, Globe } from "lucide-react";
 import type { College, Province } from "@shared/schema";
 import type { z } from "zod";
 
@@ -29,7 +29,7 @@ export default function Register() {
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: "", fatherName: "", mobile: "+92", email: "", selectedProvinceId: undefined, selectedCollegeId: undefined, password: "" },
+    defaultValues: { name: "", fatherName: "", email: "", country: "Pakistan", selectedProvinceId: undefined, selectedCollegeId: undefined, mobile: "+92", password: "" },
   });
 
   const selectedProvinceId = form.watch("selectedProvinceId");
@@ -101,22 +101,6 @@ export default function Register() {
               />
               <FormField
                 control={form.control}
-                name="mobile"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mobile Number *</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input {...field} placeholder="+923001234567" className="pl-10" data-testid="input-mobile" />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
@@ -127,6 +111,38 @@ export default function Register() {
                         <Input {...field} type="email" placeholder="you@example.com" className="pl-10" data-testid="input-email" />
                       </div>
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="country"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country *</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-country">
+                          <Globe className="w-4 h-4 mr-1 text-muted-foreground" />
+                          <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Pakistan">Pakistan</SelectItem>
+                        <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                        <SelectItem value="United States">United States</SelectItem>
+                        <SelectItem value="United Arab Emirates">United Arab Emirates</SelectItem>
+                        <SelectItem value="Saudi Arabia">Saudi Arabia</SelectItem>
+                        <SelectItem value="Canada">Canada</SelectItem>
+                        <SelectItem value="Australia">Australia</SelectItem>
+                        <SelectItem value="Qatar">Qatar</SelectItem>
+                        <SelectItem value="Bahrain">Bahrain</SelectItem>
+                        <SelectItem value="Kuwait">Kuwait</SelectItem>
+                        <SelectItem value="Oman">Oman</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -177,6 +193,22 @@ export default function Register() {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="mobile"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mobile Number *</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input {...field} placeholder="+923001234567" className="pl-10" data-testid="input-mobile" />
+                      </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

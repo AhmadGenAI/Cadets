@@ -13,6 +13,7 @@ export const users = pgTable("users", {
   role: varchar("role", { length: 20 }).notNull().default("student"),
   selectedCollegeId: integer("selected_college_id"),
   selectedProvinceId: integer("selected_province_id"),
+  country: varchar("country", { length: 100 }),
   level: varchar("level", { length: 30 }),
   preferredLanguage: varchar("preferred_language", { length: 20 }),
   isActive: boolean("is_active").notNull().default(true),
@@ -121,10 +122,11 @@ export const insertAssessmentQuestionSchema = createInsertSchema(assessmentQuest
 export const registerSchema = z.object({
   name: z.string().min(1, "First name is required"),
   fatherName: z.string().min(1, "Father name is required"),
-  mobile: z.string().min(10, "Mobile number with country code is required (e.g. +923001234567)"),
   email: z.string().email().optional().or(z.literal("")),
+  country: z.string().min(1, "Country is required"),
   selectedProvinceId: z.number().optional(),
   selectedCollegeId: z.number().optional(),
+  mobile: z.string().min(10, "Mobile number with country code is required (e.g. +923001234567)"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 

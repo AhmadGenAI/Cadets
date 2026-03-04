@@ -63,6 +63,7 @@ export async function registerRoutes(
         name: data.name || null,
         fatherName: data.fatherName || null,
         email: data.email || null,
+        country: data.country || null,
         role: "student",
         selectedCollegeId: data.selectedCollegeId || null,
         selectedProvinceId: data.selectedProvinceId || null,
