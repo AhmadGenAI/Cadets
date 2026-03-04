@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
@@ -18,7 +18,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Shield, Users, MapPin, GraduationCap, Package, FileText, Settings,
-  Plus, Pencil, Trash2, LogOut, LayoutDashboard, Download, Smartphone, ClipboardList, Upload, CalendarDays
+  Plus, Pencil, Trash2, LogOut, LayoutDashboard, Download, Smartphone, ClipboardList, Upload, CalendarDays,
+  Loader2, X, Image as ImageIcon, Music, Video
 } from "lucide-react";
 import type { User, Province, College, Package as PkgType, Page as PageType, BlogPost, AssessmentQuestion } from "@shared/schema";
 
@@ -711,6 +712,201 @@ function BlogTab() {
   );
 }
 
+function ForceBoxForm({
+  newBox,
+  setNewBox,
+  editBoxIdx,
+  onSubmit,
+}: {
+  newBox: { title: string; image: string; url: string };
+  setNewBox: (b: { title: string; image: string; url: string }) => void;
+  editBoxIdx: number | null;
+  onSubmit: () => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url } = await res.json();
+      setNewBox({ ...newBox, image: url });
+    } catch {
+      alert("Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div>
+        <Label className="text-xs">Title</Label>
+        <Input
+          value={newBox.title}
+          onChange={e => setNewBox({ ...newBox, title: e.target.value })}
+          placeholder="Pakistan Army"
+          data-testid="input-box-title"
+        />
+      </div>
+      <div>
+        <Label className="text-xs">Image</Label>
+        <div className="flex gap-2 items-center">
+          <Input
+            value={newBox.image}
+            onChange={e => setNewBox({ ...newBox, image: e.target.value })}
+            placeholder="Upload or paste URL"
+            className="flex-1"
+            data-testid="input-box-image"
+          />
+          <input ref={fileRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            data-testid="input-box-image-upload"
+            className="shrink-0"
+          >
+            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+          </Button>
+        </div>
+        {newBox.image && <img src={newBox.image} alt="Preview" className="h-10 mt-1 rounded object-cover border" />}
+      </div>
+      <div>
+        <Label className="text-xs">Link URL (optional)</Label>
+        <Input
+          value={newBox.url}
+          onChange={e => setNewBox({ ...newBox, url: e.target.value })}
+          placeholder="https://..."
+          data-testid="input-box-url"
+        />
+      </div>
+      <div className="flex items-end">
+        <Button onClick={onSubmit} disabled={!newBox.title.trim()} data-testid="button-add-box" className="w-full">
+          {editBoxIdx !== null ? "Update" : <><Plus className="w-4 h-4 mr-1" /> Add</>}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function FileUploadField({
+  label,
+  value,
+  onChange,
+  accept,
+  icon: Icon,
+  placeholder,
+  testId,
+  helpText,
+}: {
+  label: string;
+  value: string;
+  onChange: (url: string) => void;
+  accept: string;
+  icon: typeof ImageIcon;
+  placeholder?: string;
+  testId: string;
+  helpText?: string;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Upload failed");
+      }
+      const { url } = await res.json();
+      onChange(url);
+    } catch (err: any) {
+      alert(err.message || "Upload failed");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="flex gap-2 items-center">
+        <Input
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={placeholder || "URL or upload a file"}
+          className="flex-1"
+          data-testid={testId}
+        />
+        <input
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          data-testid={`${testId}-upload`}
+          className="shrink-0"
+        >
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+        </Button>
+        {value && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onChange("")}
+            className="shrink-0 text-destructive"
+            data-testid={`${testId}-clear`}
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
+      {value && accept.includes("image") && (
+        <img src={value} alt="Preview" className="h-16 rounded-md object-cover border" />
+      )}
+      {value && accept.includes("audio") && (
+        <audio src={value} controls className="h-8 w-full" />
+      )}
+      {value && accept.includes("video") && (
+        <video src={value} className="h-20 rounded-md border" controls muted />
+      )}
+      {helpText && <p className="text-xs text-muted-foreground">{helpText}</p>}
+    </div>
+  );
+}
+
 type ForceBox = { title: string; image: string; url: string };
 type SettingsData = {
   site_name: string;
@@ -850,53 +1046,48 @@ function SettingsTab() {
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="hero-media">Hero {heroMediaType === "video" ? "Video" : "Image"} URL</Label>
-              <Input
-                id="hero-media"
-                value={heroMedia}
-                onChange={e => setHeroMedia(e.target.value)}
-                placeholder={heroMediaType === "video" ? "https://example.com/hero-video.mp4" : "https://example.com/hero-image.jpg"}
-                data-testid="input-hero-media"
-              />
-              <p className="text-xs text-muted-foreground">
-                {heroMediaType === "video"
-                  ? "Direct video file URL (.mp4). Plays automatically in hero section."
-                  : "Image URL for the hero background. Leave empty for default."}
-              </p>
-            </div>
+            <FileUploadField
+              label={heroMediaType === "video" ? "Hero Video" : "Hero Image"}
+              value={heroMedia}
+              onChange={setHeroMedia}
+              accept={heroMediaType === "video" ? "video/mp4,video/webm" : "image/*"}
+              icon={heroMediaType === "video" ? Video : ImageIcon}
+              placeholder={heroMediaType === "video" ? "Upload or paste video URL" : "Upload or paste image URL"}
+              testId="input-hero-media"
+              helpText={heroMediaType === "video"
+                ? "Upload a video or paste a direct URL (.mp4). Auto-plays in hero section."
+                : "Upload an image or paste a URL. Leave empty for default."}
+            />
           </div>
         </div>
 
         <div className="border-t pt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="bg-audio">Background Audio URL</Label>
-            <Input
-              id="bg-audio"
-              value={bgAudio}
-              onChange={e => setBgAudio(e.target.value)}
-              placeholder="https://example.com/background-music.mp3"
-              data-testid="input-bg-audio"
-            />
-            <p className="text-xs text-muted-foreground">Audio file URL (.mp3) that plays when the website opens. Leave empty to disable.</p>
-          </div>
+          <FileUploadField
+            label="Background Audio"
+            value={bgAudio}
+            onChange={setBgAudio}
+            accept="audio/mp3,audio/mpeg,audio/wav,audio/ogg,audio/m4a,audio/*"
+            icon={Music}
+            placeholder="Upload or paste audio URL"
+            testId="input-bg-audio"
+            helpText="Audio file that plays when the website opens. Leave empty to disable."
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="cta-bg-image">CTA Section Background Image</Label>
-            <Input
-              id="cta-bg-image"
-              value={ctaBgImage}
-              onChange={e => setCtaBgImage(e.target.value)}
-              placeholder="https://example.com/cta-background.jpg"
-              data-testid="input-cta-bg-image"
-            />
-            <p className="text-xs text-muted-foreground">Background image for "Ready to Start Your Preparation" section. Leave empty for default color.</p>
-          </div>
+          <FileUploadField
+            label="CTA Section Background Image"
+            value={ctaBgImage}
+            onChange={setCtaBgImage}
+            accept="image/*"
+            icon={ImageIcon}
+            placeholder="Upload or paste image URL"
+            testId="input-cta-bg-image"
+            helpText='Background image for "Ready to Start Your Preparation" section. Leave empty for default.'
+          />
         </div>
 
         <div className="border-t pt-5">
           <Label className="text-base font-semibold mb-3 block">Armed Forces Preparation Boxes</Label>
-          <p className="text-xs text-muted-foreground mb-4">Add boxes with title, image URL, and optional link. These appear in the "Armed Forces Preparation" section.</p>
+          <p className="text-xs text-muted-foreground mb-4">Add boxes with title, image, and optional link. Upload an image or paste a URL.</p>
 
           {forceBoxesList.length > 0 && (
             <div className="space-y-2 mb-4">
@@ -920,38 +1111,7 @@ function SettingsTab() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
-            <div>
-              <Label className="text-xs">Title</Label>
-              <Input
-                value={newBox.title}
-                onChange={e => setNewBox({ ...newBox, title: e.target.value })}
-                placeholder="Pakistan Army"
-                data-testid="input-box-title"
-              />
-            </div>
-            <div>
-              <Label className="text-xs">Image URL</Label>
-              <Input
-                value={newBox.image}
-                onChange={e => setNewBox({ ...newBox, image: e.target.value })}
-                placeholder="https://..."
-                data-testid="input-box-image"
-              />
-            </div>
-            <div>
-              <Label className="text-xs">Link URL (optional)</Label>
-              <Input
-                value={newBox.url}
-                onChange={e => setNewBox({ ...newBox, url: e.target.value })}
-                placeholder="https://..."
-                data-testid="input-box-url"
-              />
-            </div>
-            <Button onClick={addOrUpdateBox} disabled={!newBox.title.trim()} data-testid="button-add-box">
-              {editBoxIdx !== null ? "Update" : <><Plus className="w-4 h-4 mr-1" /> Add</>}
-            </Button>
-          </div>
+          <ForceBoxForm newBox={newBox} setNewBox={setNewBox} editBoxIdx={editBoxIdx} onSubmit={addOrUpdateBox} />
         </div>
 
         <div className="border-t pt-5">

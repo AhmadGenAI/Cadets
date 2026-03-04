@@ -1,10 +1,33 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import session from "express-session";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 import { storage } from "./storage";
 import { hashPassword, comparePassword } from "./auth";
 import { generateMcqPdf } from "./pdf";
 import { registerSchema, loginSchema } from "@shared/schema";
+
+const uploadsDir = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, uploadsDir),
+    filename: (_req, file, cb) => {
+      const ext = path.extname(file.originalname);
+      const base = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, "_");
+      cb(null, `${base}-${Date.now()}${ext}`);
+    },
+  }),
+  limits: { fileSize: 50 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = /\.(jpg|jpeg|png|gif|webp|mp4|webm|mp3|wav|ogg|m4a)$/i;
+    if (allowed.test(path.extname(file.originalname))) cb(null, true);
+    else cb(new Error("Invalid file type"));
+  },
+});
 
 declare module "express-session" {
   interface SessionData {
@@ -671,6 +694,22 @@ export async function registerRoutes(
       bg_audio: bgAudio?.value ?? "",
       force_boxes: forceBoxes?.value ?? null,
       cta_bg_image: ctaBgImage?.value ?? "",
+    });
+  });
+
+  app.use("/uploads", (await import("express")).default.static(uploadsDir));
+
+  app.post("/api/admin/upload", requireAdmin, (req: Request, res: Response) => {
+    upload.single("file")(req, res, (err: any) => {
+      if (err) {
+        const msg = err instanceof multer.MulterError
+          ? (err.code === "LIMIT_FILE_SIZE" ? "File too large (max 50MB)" : err.message)
+          : (err.message || "Upload failed");
+        return res.status(400).json({ message: msg });
+      }
+      if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+      const fileUrl = `/uploads/${req.file.filename}`;
+      res.json({ url: fileUrl });
     });
   });
 

@@ -50,6 +50,7 @@ A comprehensive web application for Pakistani students preparing for cadet colle
 - `server/auth.ts` - Password hashing utilities
 - `server/pdf.ts` - PDF generation with watermark (pdfkit)
 - `server/seed.ts` - Seed data
+- `uploads/` - User-uploaded files (images, audio, video) served statically at /uploads/
 - `client/src/pages/` - All page components
 - `client/src/components/` - Shared components
 - `client/src/lib/auth.tsx` - Auth context provider
