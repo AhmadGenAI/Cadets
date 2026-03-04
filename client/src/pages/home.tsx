@@ -185,14 +185,14 @@ export default function Home() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4"
+          className="flex flex-wrap justify-center gap-4"
         >
           {provincesLoading
-            ? Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-48 rounded-md" />
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-0.7rem)] h-48 rounded-md" />
               ))
             : provinces?.filter(p => p.isVisible && p.country === "Pakistan")?.map((province) => (
-                <motion.div key={province.id} variants={fadeUp}>
+                <motion.div key={province.id} variants={fadeUp} className="w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-0.7rem)]">
                   <Link href={`/provinces/${province.id}`}>
                     <Card
                       className="group relative overflow-hidden cursor-pointer h-48"
