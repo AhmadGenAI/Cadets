@@ -34,6 +34,8 @@ export async function seedDatabase() {
   await storage.createCollege({ name: "Cadet College Razmak", provinceId: kpk.id, city: "Razmak", lastApplyDate: "2026-06-20", isFeatured: true });
   await storage.createCollege({ name: "Cadet College Kohat", provinceId: kpk.id, city: "Kohat", lastApplyDate: "2026-06-10", isFeatured: false });
   await storage.createCollege({ name: "Cadet College Mastung", provinceId: balochistan.id, city: "Mastung", isFeatured: false });
+  await storage.createCollege({ name: "PAF College Sargodha", provinceId: punjab.id, city: "Sargodha", isFeatured: true });
+  await storage.createCollege({ name: "PAF Cadet College Murree Lower Topa", provinceId: punjab.id, city: "Murree", isFeatured: true });
 
   await storage.createPackage({
     name: "Free Trial",

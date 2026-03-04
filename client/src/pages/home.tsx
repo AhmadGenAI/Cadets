@@ -233,10 +233,10 @@ export default function Home() {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
           >
             {collegesLoading
-              ? Array.from({ length: 6 }).map((_, i) => (
+              ? Array.from({ length: 3 }).map((_, i) => (
                   <Skeleton key={i} className="h-56 rounded-md" />
                 ))
-              : colleges?.slice(0, 6).map((college) => (
+              : colleges?.filter(c => c.isFeatured).slice(0, 6).map((college) => (
                   <motion.div key={college.id} variants={fadeUp}>
                     <Card className="p-5 flex flex-col gap-3 h-full" data-testid={`card-college-${college.id}`}>
                       <div className="flex items-start justify-between gap-2">
